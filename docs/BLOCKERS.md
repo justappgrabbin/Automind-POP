@@ -25,3 +25,21 @@
   There is one pinned address and perspective pair per Stage 1 ledger.
   Quantum or ORBS research measurements, recipient heuristics, and the full
   five-experiment ARLM acceptance program remain open.
+
+## ARLM Stage 2 limits and next approval
+
+The deterministic resolver consumes explicit source-linked assertions for
+donor-observed constituents. It handles one selected evidence revision at a
+time. It does not discover new lexical senses or infer positional coordinates
+from text. YNIV is the supported Stage 2 routing path. Reconciling other
+providers' mapping definitions remains separate work.
+
+The six-field transform re-observes under a declared frame and records exact
+frame deltas, shared fields and clarity losses. Cross-frame equivalences and
+additional research operators need separate definitions and tests.
+
+The current TRIDENT feature encoder consumes contextual relations. Full frame,
+address, provider and evidence are pinned as provenance for future
+conditioning. Stage 2 establishes no learned interpretation qualification and
+makes no changes to training, model weights, or the conductor. Stage 3
+requires review and approval.

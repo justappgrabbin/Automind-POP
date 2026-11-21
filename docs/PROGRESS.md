@@ -94,3 +94,16 @@ Stage 2 requires separate approval. Its first review must specify how
 concept-driven semantic addresses, typed graph relations, perspective
 transformations, and context-dependent ATO operations enter TRIDENT
 representations, training, and inference.
+
+## ARLM Stage 2
+
+Stage 2 branches from `718ef4fc607c05d2aeb3d67645582b51630980cb`. It adds
+private typed evidence indexing, reproducible contextual resolution and
+re-observation, and checkpoint-pinned TRIDENT input and computation artifacts.
+Evidence, interpretation, and activation remain distinguishable. Experiment 1
+and regression results are in `TEST_EVIDENCE.md`.
+
+The next action is a Stage 3 architectural review for direct neural conditioning
+on semantic addresses and perspective transformations, with independently
+defined holdout tasks and model revision qualification. Stage 3 requires
+separate approval.

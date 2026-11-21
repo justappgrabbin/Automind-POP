@@ -8,6 +8,7 @@ from contextlib import closing
 from pathlib import Path
 
 from arlm_contact import approve, export_rows, initialize, public_view, record
+from arlm_interpretation import index_evidence, interpret
 from arlm_state import ARLMState, encode, sha
 
 
@@ -19,6 +20,15 @@ def main():
     init.add_argument("foundry", type=Path)
     init.add_argument("pop_state", type=Path)
     commands.add_parser("record").add_argument("request", type=Path)
+    evidence = commands.add_parser("index-evidence")
+    evidence.add_argument("encounter", type=int)
+    evidence.add_argument("request", type=Path)
+    interpretation = commands.add_parser("interpret")
+    interpretation.add_argument("encounter", type=int)
+    interpretation.add_argument("evidence", type=int)
+    interpretation.add_argument("request", type=Path)
+    artifact = commands.add_parser("interpretation-artifacts")
+    artifact.add_argument("revision", type=int)
     approval = commands.add_parser("approve")
     approval.add_argument("encounter")
     approval.add_argument("approver")
@@ -37,6 +47,22 @@ def main():
                 result = initialize(store, args.foundry, args.pop_state)
             elif args.action == "record":
                 result = record(store, json.loads(args.request.read_text()))
+            elif args.action == "index-evidence":
+                result = index_evidence(store, args.encounter, json.loads(args.request.read_text()))
+            elif args.action == "interpret":
+                result = interpret(store, args.encounter, args.evidence, json.loads(args.request.read_text()))
+            elif args.action == "interpretation-artifacts":
+                revision = store.revision(args.revision)
+                store.validate(revision)
+                if revision["event"]["type"] != "arlm-interpretation":
+                    raise ValueError("An interpretation revision is required")
+                refs = revision["manifest"]["components"]
+                result = {"perspective": json.loads(store.read(refs["P"]))}
+                address = revision["event"]["semanticAddress"]
+                if address is not None:
+                    result["address"] = json.loads(store.read(address))
+                result.update({key: json.loads(store.read(ref))
+                               for key, ref in revision["manifest"]["attachments"].items()})
             elif args.action == "approve":
                 result = approve(store, args.encounter, args.approver)
             elif args.action == "rollback":

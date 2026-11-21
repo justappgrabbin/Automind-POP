@@ -174,3 +174,39 @@ perspective, transformations, and approval. Rejected, unapproved, inactive,
 and superseded records stay in history and are excluded from export. Rolling
 back does not reauthorize a superseded encounter. Keep the pinned Foundry
 weights and registry available for active restore and rollback.
+
+### ARLM positional interpretation
+
+Record a verified encounter, then index source-linked evidence for its
+donor-observed constituents. Each assertion supplies a constituent, canonical
+lowercase concept ID, context ID, `denotes` relation, source and source revision,
+and a position with an explicit provider and provider coordinates. The position
+is a supplied reference. The resolver does not derive coordinates from spelling.
+
+```sh
+python src/arlm_cli.py .pop/arlm.sqlite index-evidence 2 evidence.json
+python src/arlm_cli.py .pop/arlm.sqlite interpret 2 3 frame.json
+python src/arlm_cli.py .pop/arlm.sqlite interpretation-artifacts 4
+```
+
+The first two numeric arguments identify the encounter and evidence revisions.
+Use the revision IDs returned by your ledger. A frame request has a `frame`
+object with `observer`, `referenceFrame`, `scale`, `context`, `knowledge`, and a
+timezone-aware `temporalReference`. Supply Biverse `expressions` keyed by its
+questions (Who, What, Where, When, Why), optional positive `weights`, and optional
+`clarify` naming one active dimension. An optional `fromRevision` references an
+earlier interpretation of the encounter and creates a transformation record.
+
+A single supported concept and position resolve. Multiple competing concepts
+or positions yield `ambiguous`, and a context with no matching evidence yields
+`unresolved`. Replaying the same request returns its historical revision
+without changing activation. Use `rollback` to activate a historical revision.
+The artifact command is private and returns the preserved frame, any address
+receipt, the TRIDENT input, and separate neural-computation measurements.
+Interpretations and neural metrics do not enter the Stage 1 training export.
+
+Run the positional meaning experiment and optionally save its sample artifacts.
+
+```sh
+POP_ARLM_SAMPLE=/tmp/arlm-positional-meaning.json python tests/arlm_positional_meaning.py
+```

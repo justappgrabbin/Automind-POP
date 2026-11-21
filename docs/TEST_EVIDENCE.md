@@ -193,3 +193,70 @@ env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
   POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-regression \
   bash tests/conductor-live.sh
 ```
+
+## ARLM Stage 2 · Experiment 1 and regressions
+
+Baseline `718ef4fc607c05d2aeb3d67645582b51630980cb`. Commands ran from the
+repository root on Linux with Node 24.22.3, Python 3.12.14, CPU PyTorch 2.6.0+cpu,
+and the existing Docker worker and llama-cpp-python 0.3.36 environments.
+
+| Exact invocation | Actual result |
+| --- | --- |
+| `POP_ARLM_SAMPLE=/workspace/scratch/pop-arlm-stage2/positional-meaning.json PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_positional_meaning.py` | Passed in 32.719 s. All four fixture contexts, original weighted observation, exact frame delta, declared invariants, suppression record, replay, fresh-process restoration, rollback, public boundary, and atomic publication fault. Corrupt input attachment and modified journal event were rejected. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_contact_contract.py` | Passed, including contact correction, approval, rollback, and training with exported rows. |
+| `npm test && bash tests/address-cli.sh` | Three Node tests passed. The shell check restored a verified address retry across processes. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/model_maker_contract.py` | Passed in 35.295 s. Held-out loss pairs were 5.6760 → 3.5658 and 3.5658 → 1.9150, with activation and rollback. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-python/bin/python tests/conductor_components.py` | Passed with Docker. Worker failure, invalid artifact rejection, verified submission and original-tree restoration. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-python/bin/python tests/automind_interpreter_smoke.py` | Passed with the original interpreter. Detected division by zero and wrote the corrected result. |
+| `PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 /tmp/pop-python/bin/python tests/local_model_contract.py` | Three passed, GGUF probe skipped in this invocation and passed in the configured invocation below. |
+| `work=$(mktemp -d); cp /workspace/scratch/pop-sources/biverse-check/biverse-guide/tests/test_language_contact.py "$work/"; PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/vendor/biverse" /tmp/pop-python/bin/python -m pytest -q "$work/test_language_contact.py"` | Four original donor tests passed. |
+| Standalone interpreter image rebuild, `bash tests/automind-interpreter-container.sh` | Skipped. The original interpreter smoke and real Docker conductor tests ran against the existing toolchain. |
+
+The independent fixture oracle is read only by the test. Identical input
+`bank` resolved to `river-edge` with gate 42 in the river frame and to
+`financial-institution` with gate 26 in finance. Mixed evidence preserved both
+candidate IDs without selecting an address. An unrelated context returned
+`unresolved`. A return transformation reproduced the same logical river frame,
+meaning, and canonical address, and rollback restored the exact earlier
+artifacts. Provider receipt IDs and donor observation timestamps are preserved
+as execution metadata rather than used as semantic identity.
+
+The existing TRIDENT encoder produced 8 × 32 features for each context.
+The activated research head ran actual forward passes. River and finance
+had maximum absolute logit deltas from their lexical-only controls of
+0.00008648634 and 0.00008815527. These values measure neural sensitivity.
+The fixture oracle and independent canonical POP receipt establish their
+respective correctness checks. The sample JSON includes the event, address,
+frame, input, features and computation receipt for all four cases. It is at
+`/workspace/scratch/pop-arlm-stage2/positional-meaning.json`, SHA-256
+`7f21f7018aee0183b2663e50f769d866abaf1130ed392f8ae37f28394fd53020`.
+
+During development, the first experiment run exposed an unintended NumPy
+dependency in logit serialization. The digest now uses standard-library
+little-endian float packing. An intermediate run caught a missing `Path`
+import. Both were corrected before the passing run.
+
+The GGUF probe passed all four checks in 54.109 s with raw output `42` and
+structured output `{"answer": 42}`. The live conductor passed with no external
+credentials. The draft encountered a real `NameError`, corrected its candidate,
+and produced a verified gate-42 receipt. A fresh process produced a second
+gate-42 receipt and a separate status process matched its restored output.
+The mission is at `/workspace/scratch/pop-arlm-stage2/run.bz6zmd/mission.json`,
+SHA-256 `8386df534b0284af5a6b10f61fcd96a2c472b6f2287014c64785cddd48e3a837`.
+
+```sh
+PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+  POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+  POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+  POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+  POP_MODEL_THREADS=2 /tmp/pop-python/bin/python tests/local_model_contract.py
+
+env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
+  PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+  POP_MODEL_BACKEND=local POP_PYTHON=/tmp/pop-python/bin/python \
+  POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+  POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+  POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+  POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-stage2 \
+  bash tests/conductor-live.sh
+```

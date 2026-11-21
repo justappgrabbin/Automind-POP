@@ -15,6 +15,8 @@ AUTHORITIES = {
     "H": "arlm-journal", "O": "biverse-contact-source", "K": "pop-receipts-and-model-registry",
 }
 COMPONENTS = AUTHORITIES.keys()
+ATTACHMENTS = {"tridentInput": "arlm-trident-input", "tridentComputation": "arlm-trident-computation"}
+VERSIONED_EVENTS = {"arlm-evidence", "arlm-interpretation"}
 CONTACT_SOURCE = Path(__file__).resolve().parents[1] / "vendor/biverse/human_design/language_contact.py"
 
 
@@ -87,6 +89,34 @@ class ARLMState:
                 raise ValueError(f"Incompatible ARLM authority for {name}")
             if name != "H":
                 self.read(refs[name])
+        event = revision["event"]
+        if event["type"] in VERSIONED_EVENTS or "eventSha256" in manifest:
+            if event.get("schema") != 1 or manifest.get("eventSha256") != sha(encode(event)):
+                raise ValueError("ARLM event digest or schema mismatch")
+            links = manifest.get("attachments", {})
+            expected = ATTACHMENTS if event["type"] == "arlm-interpretation" else {}
+            if set(links) != set(expected):
+                raise ValueError("Incompatible ARLM attachments")
+            for key, authority in expected.items():
+                if links[key]["authority"] != authority:
+                    raise ValueError("Incompatible ARLM attachment authority")
+            if expected:
+                source = json.loads(self.read(links["tridentInput"]))
+                computation = json.loads(self.read(links["tridentComputation"]))
+                evidence = self.revision(event["evidenceRevision"])
+                if (source["schema"] != 1 or computation["schema"] != 1
+                        or source["encounterRevision"] != event["encounterRevision"]
+                        or source["evidenceRevision"] != evidence["revision"]
+                        or evidence["event"]["type"] != "arlm-evidence"
+                        or evidence["manifest"]["eventSha256"] != sha(encode(evidence["event"]))
+                        or source["graph"] != evidence["manifest"]["components"]["G"]
+                        or source["perspective"] != refs["P"]
+                        or source["address"] != event["semanticAddress"]
+                        or (source["address"] is not None and source["address"] != refs["A"])
+                        or computation["model"] != refs["Θ"]
+                        or computation["implementation"] != source["encoder"]):
+                    raise ValueError("ARLM interpretation provenance mismatch")
+                self.read(source["graph"])
         operators = json.loads(self.read(refs["O"]))
         if operators["sourceSha256"] != sha(CONTACT_SOURCE.read_bytes()):
             raise ValueError("Biverse contact operator source has changed")
@@ -100,11 +130,15 @@ class ARLMState:
                 raise ValueError("ARLM checkpoint registration changed")
             registry.verified_checkpoint(state, model["revision"], model["head"])
 
-    def publish(self, parent, refs, key, event):
+    def publish(self, parent, refs, key, event, *, attachments=None):
         next_id = self.db.execute("SELECT COALESCE(MAX(id),0)+1 FROM revisions").fetchone()[0]
         manifest = {"version": 1, "components": {
             **refs, "H": {"authority": "arlm-journal", "revision": next_id},
         }}
+        if event["type"] in VERSIONED_EVENTS:
+            manifest["eventSha256"] = sha(encode(event))
+        if attachments is not None:
+            manifest["attachments"] = attachments
         self.db.execute("INSERT INTO revisions VALUES (?,?,?,?,?)",
                         (next_id, parent, encode(manifest), key, encode(event)))
         return self.activate(next_id)

@@ -1,0 +1,172 @@
+{
+  "encounter": {
+    "id": "positional-meaning-bank",
+    "expression": "bank",
+    "source": "fixture:spoken-input",
+    "participants": [
+      "observer:field",
+      "agent:arlm"
+    ],
+    "context": {
+      "task": "positional meaning"
+    },
+    "modality": "language",
+    "observedAt": "2026-01-01T12:00:00Z",
+    "evaluation": {
+      "verifier": "fixture:independent-token-check",
+      "expectedTokens": [
+        "bank"
+      ]
+    }
+  },
+  "assertions": [
+    {
+      "constituent": "bank",
+      "context": "river",
+      "concept": "river-edge",
+      "relation": "denotes",
+      "source": "fixture:contextual-lexicon",
+      "sourceRevision": "edition-1",
+      "position": {
+        "provider": "recovered:yniv-addressing-engine",
+        "coordinates": {
+          "micro": {
+            "gate": 41,
+            "line": 4,
+            "color": 2,
+            "tone": 5,
+            "base": 3
+          },
+          "macro": {
+            "planet": 0,
+            "dimension": 0,
+            "zodiac": 0,
+            "house": 0
+          },
+          "emergent": {
+            "degree": 1,
+            "minute": 0,
+            "second": 0,
+            "arcSecond": 0
+          }
+        }
+      }
+    },
+    {
+      "constituent": "bank",
+      "context": "finance",
+      "concept": "financial-institution",
+      "relation": "denotes",
+      "source": "fixture:contextual-lexicon",
+      "sourceRevision": "edition-1",
+      "position": {
+        "provider": "recovered:yniv-addressing-engine",
+        "coordinates": {
+          "micro": {
+            "gate": 25,
+            "line": 4,
+            "color": 2,
+            "tone": 5,
+            "base": 3
+          },
+          "macro": {
+            "planet": 0,
+            "dimension": 0,
+            "zodiac": 0,
+            "house": 0
+          },
+          "emergent": {
+            "degree": 1,
+            "minute": 0,
+            "second": 0,
+            "arcSecond": 0
+          }
+        }
+      }
+    },
+    {
+      "constituent": "bank",
+      "context": "mixed",
+      "concept": "river-edge",
+      "relation": "denotes",
+      "source": "fixture:contextual-lexicon",
+      "sourceRevision": "edition-1",
+      "position": {
+        "provider": "recovered:yniv-addressing-engine",
+        "coordinates": {
+          "micro": {
+            "gate": 41,
+            "line": 4,
+            "color": 2,
+            "tone": 5,
+            "base": 3
+          },
+          "macro": {
+            "planet": 0,
+            "dimension": 0,
+            "zodiac": 0,
+            "house": 0
+          },
+          "emergent": {
+            "degree": 1,
+            "minute": 0,
+            "second": 0,
+            "arcSecond": 0
+          }
+        }
+      }
+    },
+    {
+      "constituent": "bank",
+      "context": "mixed",
+      "concept": "financial-institution",
+      "relation": "denotes",
+      "source": "fixture:contextual-lexicon",
+      "sourceRevision": "edition-1",
+      "position": {
+        "provider": "recovered:yniv-addressing-engine",
+        "coordinates": {
+          "micro": {
+            "gate": 25,
+            "line": 4,
+            "color": 2,
+            "tone": 5,
+            "base": 3
+          },
+          "macro": {
+            "planet": 0,
+            "dimension": 0,
+            "zodiac": 0,
+            "house": 0
+          },
+          "emergent": {
+            "degree": 1,
+            "minute": 0,
+            "second": 0,
+            "arcSecond": 0
+          }
+        }
+      }
+    }
+  ],
+  "oracle": {
+    "river": {
+      "status": "resolved",
+      "concept": "river-edge",
+      "gate": 42
+    },
+    "finance": {
+      "status": "resolved",
+      "concept": "financial-institution",
+      "gate": 26
+    },
+    "mixed": {
+      "status": "ambiguous",
+      "concept": null
+    },
+    "unknown": {
+      "status": "unresolved",
+      "concept": null
+    }
+  }
+}

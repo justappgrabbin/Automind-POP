@@ -84,3 +84,13 @@ address, model and lexical verification evidence for K. Address and
 perspective artifacts retain their originating state path and locator.
 The public projection follows the Execution Spine donor's through-Base
 boundary while retaining all thirteen fields privately.
+
+## ARLM Stage 2 positional interpretation
+
+| Reused source | Stage 2 integration and scope |
+| --- | --- |
+| `vendor/biverse/human_design/language_contact.py` | Reads the verified Stage 1 DISEMINER tokens and node IDs. `arlm_interpretation.py` uses the original `SemanticGraph` to index and traverse typed constituent, assertion, concept, and context edges. Assertion records retain originating source and source revision. |
+| `vendor/biverse/human_design/dimensional.py` and `assets/dimensions-v1.json` | `arlm_perspective.py` normalizes six-field frames, calls `PerspectiveEngine.locate` and optional `clarify`, and records the frame delta, invariants and suppressed proportions alongside the full original observation. Both donor inputs to the mapping are fingerprinted. |
+| `src/runtime.mjs` and `vendor/synthai/services/address-service.mjs` | `arlm_address.mjs` runs the existing qualified YNIV route and canonical-spine verifier on evidence-supplied coordinates in temporary POP state. Mapping, routing and verification sources have distinct fingerprints. Other providers retain their own mappings; this adapter currently qualifies only YNIV. |
+| `src/arlm_state.py` and `src/arlm_contact.py` | Existing SQLite transaction and activation journal publish evidence, interpretation and attachments. Stage 2 bindings pin event, graph, address, perspective, model and input digests. The Stage 1 encounter, public slice and approval/export paths are reused. |
+| `vendor/trident/source/semantic_language_maker.py` and `model.py` | `arlm_trident_context.py` calls the donor encoder and real forward path on a pinned qualified checkpoint. The donor processes contextual triples through its existing feature and fusion path. The input artifact pins the full evidence and frame provenance. Learned perspective and address embeddings are a later contract. |
