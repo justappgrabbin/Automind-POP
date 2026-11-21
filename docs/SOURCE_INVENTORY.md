@@ -62,3 +62,9 @@ TRIDENT at `dd31be0`](https://github.com/justappgrabbin/Stellarproximology-lab/t
 Its original CPU suites passed real weight training, checkpoint revision/reload,
 local inference, and rejection of unapproved records in read-only donor probes.
 The local GGUF adapter does not import or promote those TRIDENT weights.
+
+The first Model Maker slice imports the three pinned TRIDENT sources under
+`vendor/trident/`. The verified donor commit, module boundary and checkpoint
+provenance are recorded in [TRIDENT provenance](../vendor/trident/PROVENANCE.md).
+POP keeps design, corpus and holdout fingerprints, training lineage,
+compatibility and activation in its separate local registry.

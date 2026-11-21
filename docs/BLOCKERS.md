@@ -1,11 +1,11 @@
 # Open blockers
 
-- **Model Maker and developmental integration.** Local GGUF inference and the
-  original TRIDENT CPU donor tests cover distinct capabilities. Converting a
-  user design into a native training specification, maintaining a qualified
-  model registry, learning from language contact, and enabling an agent's
-  specialist and embodiment capabilities require subsequent architectural
-  approval and integration tests.
+- **Model Maker and developmental integration.** CPU TRIDENT training and
+  revision activation have a bounded fixture test. Quantized TRIDENT export,
+  attachment of newly trained heads, language-contact training, and conductor
+  or embodiment promotion still require their own integration and evidence.
+  The declared memory budget selects a model profile and does not enforce an
+  operating-system memory cap.
 - **Broader agent modes.** The mounted address mission uses the original one-shot
   coder with independent containers. Persistent interpreter sessions needed by
   step-by-step coding and the retrieval-assisted mission are pending. The

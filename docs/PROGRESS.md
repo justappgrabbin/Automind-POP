@@ -57,3 +57,18 @@ rejection of incompatible activation, and registry restoration in a fresh
 process. Corpus privacy, unsafe or mismatched checkpoint formats, and a
 training budget overrun are concrete risks. Contact-derived records and
 quantized specialist promotion need their own evidence before qualification.
+
+## Implemented Model Maker slice
+
+The approved TRIDENT slice is implemented in [Model Maker](../src/model_maker.py)
+and [registry](../src/model_registry.py). The CLI turns a design and CPU budget
+into a stable model identity and construction specification. A run trains from
+the last registered revision, evaluates against disjoint held-out prompts,
+and records a head-specific qualification. Activation and rollback verify
+the registered artifact hashes and PyTorch version. Original AutoMind
+trajectories and the Qwen conductor remain the execution baseline.
+
+The next architecture review should establish the language-contact record and
+approval interface for converting a verified experience into a future training
+example. That requires inspection of the original contact and cultivation
+ledgers, with ATO provenance and the existing relational address retained.

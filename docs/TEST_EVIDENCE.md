@@ -122,3 +122,25 @@ The private evidence directory for this workspace run is
 `/workspace/scratch/pop-local-evidence/run.0d3mMY`. The checkpoint contains
 the compiled prompts, generated sources and verifier calls, exception,
 validated CSVs, worker run IDs, receipts, and trajectory.
+
+## Native TRIDENT Model Maker
+
+`python tests/model_maker_contract.py` passed through the public CLI using
+Python 3.12 and `torch==2.6.0+cpu`. The fixture constructed a portable model
+with width 64, two layers, 260 byte tokens, and selected code and math heads.
+Each revision took 16 optimizer steps on approved code-head records.
+Answer-token loss on separate prompts moved from 5.6760 to 3.5658 and then
+from 3.5658 to 1.9150 after continued training. The revisions had different
+weight digests and the second revision referenced the first.
+
+The CLI rejected an unapproved corpus, overlapping holdout prompts, activation
+of the unqualified math head, and inference with an altered config artifact.
+Fresh processes generated reproducibly with the activated code head, switched
+revisions, rolled back, and restored the same model identity and activation.
+The first sample was `OZK�KO�#O`. This fixture verifies real local generation
+and measured token-prediction improvement. It establishes no text fluency or
+conductor readiness for these revisions.
+
+The retained fixture registry and weights are in the private local workspace
+`/workspace/scratch/pop-foundry-evidence/contract-ojszyxuu/foundry`.
+`npm test` and `bash tests/address-cli.sh` also passed.

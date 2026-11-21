@@ -107,3 +107,30 @@ Select `POP_MODEL_BACKEND=openai` to use the optional external provider.
 Set `POP_EVIDENCE_DIR` for the acceptance script to retain checkpoints and
 outputs in a private run directory. Local checkpoints include compiled prompts
 and raw model outputs for audit and contain user mission data.
+
+### Native TRIDENT Model Maker
+
+The CPU Model Maker has its own persistent workspace and uses the pinned
+TRIDENT trainer. A design declares `theme`, `role`, `direction`, an ordered list
+of `heads` from `code`, `math`, and `research`, and a `hardware` object with
+`memoryMiB` and `maxTrainingSteps`. The memory budget selects the portable
+or original-size architecture. The current CPU workflow requests 1–128 steps
+per revision. Run it in a private workspace because the donor saves the
+approved training records beside the checkpoint.
+
+```sh
+python -m pip install -r src/model-maker-requirements.txt
+python src/model_maker.py .pop/foundry init design.json
+python src/model_maker.py .pop/foundry train train.jsonl holdout.jsonl --head code --steps 16 --approved
+python src/model_maker.py .pop/foundry activate REVISION_ID code
+python src/model_maker.py .pop/foundry generate 'Reply to gamma.' --seed 42
+python src/model_maker.py .pop/foundry status
+python src/model_maker.py .pop/foundry rollback
+python tests/model_maker_contract.py
+```
+
+Each JSONL row provides `prompt`, `response`, and `head`. Training and holdout
+prompts must be disjoint and use the selected head. Qualification requires a
+lower finite held-out answer-token loss and nonempty local head generation.
+The scope is token prediction and local generation. Fluency, factuality,
+and eligibility to conduct an AutoMind mission require separate tests.
