@@ -88,6 +88,7 @@ python -m pip install --only-binary llama-cpp-python \
   --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
   -r src/local-model-requirements.txt
 export POP_MODEL_BACKEND=local
+export POP_MODEL_THREADS=2
 export POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M
 export POP_GGUF=/absolute/path/qwen2.5-coder-3b-instruct-q4_k_m.gguf
 export POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7

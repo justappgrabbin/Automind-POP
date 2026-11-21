@@ -40,9 +40,9 @@ the CSV against its address resolution. This is an arithmetic task."""
 WORKER_GUIDANCE = (
     "The candidate runs in an isolated, offline worker with a 10-second limit. "
     "Use only Python standard library. Read the exact relative path input/coordinates.json "
-    "and extract the integer at micro.gate in the JSON object. Write the exact relative "
-    "path submission/submission.csv with header id,gate and one row whose first cell "
-    "is the literal string address. Keep the response short and use the requested response format. During a retry, "
+    "and read micro.gate from the JSON object. Add one to that integer to obtain the "
+    "one-based gate. Write the exact relative path submission/submission.csv with "
+    "header id,gate and one row containing the literal string address and the one-based gate. Keep the response short and use the requested response format. During a retry, "
     "correct the fault exposed by the execution output and leave harness exceptions "
     "out of candidate code."
 )
@@ -69,6 +69,8 @@ def consume_submission(encoded, gate):
         rows = list(csv.reader(io.StringIO(content.decode("utf-8"), newline=""), strict=True))
     except (UnicodeError, csv.Error, binascii.Error) as error:
         raise ValueError("Submission must be a UTF-8 CSV") from error
+    if rows == [["id", "gate"], ["address", str(gate - 1)]]:
+        raise ValueError("CSV contains the zero-based gate. Convert micro.gate to one-based by adding one.")
     if rows != [["id", "gate"], ["address", str(gate)]]:
         raise ValueError("Submission must have id,gate and one address row matching the resolved gate")
     return content

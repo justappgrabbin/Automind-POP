@@ -1,5 +1,6 @@
 """Validate model output and, when configured, exercise real GGUF inference."""
 
+import base64
 import json
 import os
 import resource
@@ -8,7 +9,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from conductor import query_backend
+from conductor import consume_submission, query_backend
 from conductor_state import verify_model_identity
 from automind.backend import query
 from automind.backend.utils import FuncSpec
@@ -29,6 +30,11 @@ class LocalContract(unittest.TestCase):
                         '{"answer": NaN}', '{"answer":42, "extra":true}', '{"answer":'):
             with self.subTest(output=invalid), self.assertRaises(ValueError):
                 structured_output(invalid, SCHEMA)
+
+    def test_zero_based_candidate_gets_specific_feedback(self):
+        candidate = base64.b64encode(b"id,gate\naddress,41\n").decode()
+        with self.assertRaisesRegex(ValueError, "zero-based gate"):
+            consume_submission(candidate, 42)
 
     def test_model_identity_and_legacy_checkpoint(self):
         legacy = {"version": 1, "model": "external"}

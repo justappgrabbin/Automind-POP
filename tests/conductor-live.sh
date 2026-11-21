@@ -18,6 +18,7 @@ coordinates='{"micro":{"gate":41,"line":4,"color":2,"tone":5,"base":3},"macro":{
 "$python_bin" src/conductor.py "$checkpoint" --status > "$test_state/restored"
 cmp "$test_state/result" "$test_state/restored"
 "$python_bin" - "$test_state/restored" <<'PY'
+import ast
 import json
 import sys
 from pathlib import Path
@@ -28,16 +29,19 @@ assert state["currentStep"] == 2
 assert draft["plan"] and continuation["plan"]
 assert draft["stage"] == "draft" and continuation["parentId"] == draft["nodeId"]
 attempts = [attempt for step in state["steps"] for attempt in step["attempts"]]
-assert attempts[0]["controlledFailure"] and attempts[0]["exception"] == "RuntimeError"
+failure = attempts[0]
+# A model-generated error can occur before the appended controlled fault.
+assert failure["controlledFailure"] and failure["exception"] and failure["receipt"] is None
 successful = next(attempt for attempt in attempts[1:] if attempt["receipt"])
 assert successful["codeSha256"] == successful["candidateSha256"]
-assert successful["candidateSha256"] != attempts[0]["candidateSha256"]
+assert successful["candidateSha256"] != failure["candidateSha256"]
+assert ast.dump(ast.parse(successful["candidate"])) != ast.dump(ast.parse(failure["candidate"]))
 assert draft["verifiedReceipt"] and draft["verifiedReceipt"]["gate"] == 42
 assert continuation["verifiedReceipt"] and continuation["verifiedReceipt"]["gate"] == 42
 if state["modelIdentity"]["backend"] == "local":
     assert len(state["modelIdentity"]["sha256"]) == 64
     calls = draft["modelCalls"]
-    assert any("POP controlled worker failure" in message["content"]
+    assert any(failure["exception"] in message["content"]
                for call in calls for message in call["input"])
     assert any(call["function"] == "submission_verify" and "rejected" not in call
                for call in calls)

@@ -88,3 +88,37 @@ plan but dropped both directory names in the candidate. The worker reported
 `FileNotFoundError`, then `SystemExit` when the model added an exit handler
 without fixing the path. The final profile states the exact relative paths and
 literal CSV identifier again at the local query boundary and in worker feedback.
+
+A later run resolved the file paths but emitted the zero-based input unchanged.
+The independent consumer rejected both retries. The mission now supplies the
+one-based conversion in the worker contract, and independently detected
+zero-based submissions receive a specific correction message.
+
+In the final-profile draft, Qwen generated a five-step plan and a candidate
+that failed in the real worker with `NameError: name 'csv' is not defined`.
+That error occurred before the appended controlled fault. The next model call
+received the traceback. Its generated replacement added `import csv`, ran in a
+fresh worker, and produced the one-based gate 42. The original
+`submission_verify` function arguments passed schema validation and AutoMind
+accepted the node. The POP consumer verified the actual CSV with SHA-256
+`955cb528c2f769cc0993d7bc9a47b53499fab7bf3ba1221833d39a6c3deca26d`.
+The four draft model calls took 20.529, 26.334, 30.891 and 34.399 seconds.
+Their prompt lengths ranged from 468 to 926 tokens.
+
+The complete `tests/conductor-live.sh` run passed on Qwen with CPU-only
+llama.cpp, two threads, an 8192-token context and seed 42. Both external
+credential variables were unset. A fresh process restored draft
+`189bb937fe67400a94a83fba5c6a930a`, generated improvement node
+`dc67658e40af4fc192702745d1a5b149`, and obtained another verified gate-42
+receipt. The three continued model calls took 41.078, 31.785 and 34.095 seconds.
+The largest prompt in this mission was 1019 tokens. The worker image ID was
+`sha256:caa741561a2cecf13c3706445fcc4f1639bcbcb68b449b082aaab555d640b121`.
+
+A third `--status` process produced byte-identical JSON to the resumed run.
+Then a resume with context changed to 4096 was rejected before generation
+and left checkpoint SHA-256 unchanged at
+`eeaed9779da031b2927ac8320d9f8fb5a9449fdf292cf1a1a40c9a84627e78f8`.
+The private evidence directory for this workspace run is
+`/workspace/scratch/pop-local-evidence/run.0d3mMY`. The checkpoint contains
+the compiled prompts, generated sources and verifier calls, exception,
+validated CSVs, worker run IDs, receipts, and trajectory.

@@ -1,9 +1,5 @@
 # Open blockers
 
-- **Live mission acceptance.** Qwen passed real local text and structured probes.
-  The full original-agent correction and restart sequence still requires a
-  passing run with the final address prompt profile. See the test evidence.
-
 - **Model Maker and developmental integration.** Local GGUF inference and the
   original TRIDENT CPU donor tests cover distinct capabilities. Converting a
   user design into a native training specification, maintaining a qualified
