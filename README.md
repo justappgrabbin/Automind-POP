@@ -134,3 +134,43 @@ prompts must be disjoint and use the selected head. Qualification requires a
 lower finite held-out answer-token loss and nonempty local head generation.
 The scope is token prediction and local generation. Fluency, factuality,
 and eligibility to conduct an AutoMind mission require separate tests.
+
+### ARLM encounter ledger
+
+Stage 1 is opt-in. Use the same Python environment as the Model Maker. Prepare
+a POP state file with `resolve-address` and `locate-perspective`, and activate a
+qualified TRIDENT revision in a Foundry workspace. Then initialize a private
+ARLM ledger.
+
+```sh
+python src/arlm_cli.py .pop/arlm.sqlite init .pop/foundry .pop/state.json
+python src/arlm_cli.py .pop/arlm.sqlite record encounter.json
+python src/arlm_cli.py .pop/arlm.sqlite show
+python src/arlm_cli.py .pop/arlm.sqlite show 2 --public
+python src/arlm_cli.py .pop/arlm.sqlite approve encounter-1 operator
+python src/arlm_cli.py .pop/arlm.sqlite export > approved.jsonl
+python src/arlm_cli.py .pop/arlm.sqlite history
+python src/arlm_cli.py .pop/arlm.sqlite rollback 1
+```
+
+The encounter file contains an `id`, original `expression`, `source`,
+`participants`, `context`, `modality`, an ISO-8601 `observedAt` with timezone,
+and `evaluation` with a separate `verifier` label and independently declared
+`expectedTokens`. For example, the fixture “Observe movement” has expected
+tokens `["observe","movement"]`. A correction adds `supersedes` with an earlier
+encounter ID on the active lineage. The ledger records donor results and
+compares token order, observed edges, and graph provenance with the fixture.
+
+The SQLite ledger holds private source text and context. The explicit public
+view exposes only the encounter ID, modality, outcome status, and address
+fields through Base. It is an output projection. File access and operator
+identity are managed outside the CLI. The lexical verifier establishes
+agreement with a declared fixture and graph readback. It cannot establish
+the truth of an utterance or authenticate the verifier label.
+
+Export writes TRIDENT JSONL to stdout and its dataset digest and row count to
+stderr. Each row identifies its encounter, independent verification,
+perspective, transformations, and approval. Rejected, unapproved, inactive,
+and superseded records stay in history and are excluded from export. Rolling
+back does not reauthorize a superseded encounter. Keep the pinned Foundry
+weights and registry available for active restore and rollback.

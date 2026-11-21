@@ -68,3 +68,19 @@ The first Model Maker slice imports the three pinned TRIDENT sources under
 provenance are recorded in [TRIDENT provenance](../vendor/trident/PROVENANCE.md).
 POP keeps design, corpus and holdout fingerprints, training lineage,
 compatibility and activation in its separate local registry.
+
+## ARLM Stage 1 contact and authority references
+
+`vendor/biverse/human_design/language_contact.py` is a byte-identical copy
+from the Biverse archive recorded above, at
+`biverse-guide/human_design/language_contact.py`. POP uses its original
+`SemanticGraph`, `Diseminer.learn`, and `Autoling.suggest`. A source digest
+pins the operator version in each ARLM manifest.
+
+The ledger references qualified TRIDENT revisions for Θ, immutable donor
+SQLite snapshots for G, captured POP address and perspective results for A
+and P, revision-linked ARLM events for H, pinned Biverse source for O, and
+address, model and lexical verification evidence for K. Address and
+perspective artifacts retain their originating state path and locator.
+The public projection follows the Execution Spine donor's through-Base
+boundary while retaining all thirteen fields privately.

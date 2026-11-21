@@ -72,3 +72,25 @@ The next architecture review should establish the language-contact record and
 approval interface for converting a verified experience into a future training
 example. That requires inspection of the original contact and cultivation
 ledgers, with ATO provenance and the existing relational address retained.
+
+## ARLM Stage 1
+
+The [ARLM CLI](../src/arlm_cli.py) publishes an atomic seven-component
+manifest with a Biverse graph snapshot and an encounter revision. The
+original donor executes on a private graph copy. A verified observation
+makes that graph visible at publication. Rejected observations retain their
+trace and leave the previous graph in use. Fresh processes check artifact and
+model compatibility, replay duplicate encounter IDs, and recover the active
+revision. Rollback adds an activation record and retains all historical
+revisions.
+
+The lexical fixture test exercised contact, public address projection,
+independent verification, training approval, atomic failure and retry,
+and correction and rollback. Exported JSONL entered real TRIDENT training
+with a matching corpus digest. Corrections supersede earlier interpretations
+for export. The accumulated graph remains a record of lexical observations.
+
+Stage 2 requires separate approval. Its first review must specify how
+concept-driven semantic addresses, typed graph relations, perspective
+transformations, and context-dependent ATO operations enter TRIDENT
+representations, training, and inference.

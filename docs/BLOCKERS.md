@@ -16,3 +16,12 @@
   Kimi and Foundry use different mandala intervals even at an independent
   astronomical position. Preserve their competing results pending a designated
   mapping authority.
+
+- **ARLM Stage 2 and research qualification.** Stage 1 supports textual
+  observations with declared lexical fixtures and the donor's adjacent-token
+  graph. The five modalities can label those observations. Sensor processing,
+  contextual truth evaluation, concept-driven addressing, ATO composition,
+  and direct conditioning of TRIDENT on ARLM state need later integration.
+  There is one pinned address and perspective pair per Stage 1 ledger.
+  Quantum or ORBS research measurements, recipient heuristics, and the full
+  five-experiment ARLM acceptance program remain open.

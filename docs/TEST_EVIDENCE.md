@@ -144,3 +144,52 @@ conductor readiness for these revisions.
 The retained fixture registry and weights are in the private local workspace
 `/workspace/scratch/pop-foundry-evidence/contract-ojszyxuu/foundry`.
 `npm test` and `bash tests/address-cli.sh` also passed.
+
+## ARLM Stage 1 encounter acceptance
+
+The approved Stage 1 changed only the ARLM CLI, contact and state modules,
+their new contract test, the imported Biverse contact source, and the five
+documentation files. These commands were run from the repository root with
+Node 24 and the existing Python 3.12 environments.
+
+| Command | Result |
+| --- | --- |
+| `/tmp/pop-trident-probe-venv/bin/python tests/arlm_contact_contract.py` | 1 passed in 13.031 s. The CLI used original Biverse contact, actual POP address and perspective output, and a trained TRIDENT research head. |
+| `npm test` | 3 passed. Address retry and restore, Biverse perspective, and positional provider comparison. |
+| `bash tests/address-cli.sh` | Passed across separate CLI processes. |
+| `/tmp/pop-trident-probe-venv/bin/python tests/model_maker_contract.py` | 1 passed. Two real training revisions changed weights, lowered fixture loss from 5.6760 to 1.9150, and exercised activation and rollback. |
+| `/tmp/pop-python/bin/python tests/conductor_components.py` | Passed with Docker. Real worker error, false artifact rejection, verified CSV, and original trajectory restoration. |
+| `PYTHONPATH=/tmp/pop-local-wheel36 /tmp/pop-python/bin/python tests/local_model_contract.py` | 3 contract checks passed. The GGUF-required probe skipped in this invocation. |
+| `PYTHONPATH="$PWD/vendor/biverse" /tmp/pop-python/bin/python -m pytest -q "$work/test_language_contact.py"` | 4 passed with the original donor test copied to a temporary directory and the mounted Biverse source on the import path. |
+
+The Stage 1 acceptance test checks full encounter retention, real adjacency
+updates, provenance readback, no-token donor rejection, duplicate event replay,
+and the public address slice through Base. It checks explicit approval,
+supersession, rollback and preserved history, and digest rejection on restore.
+A SQLite trigger forced failure at activation and confirmed that the event,
+graph snapshot, and active pointer remained unchanged. The retry produced
+exactly one more observation. Exported bytes entered real TRIDENT training and
+matched the Foundry corpus digest. The mounted donor module matches its archive
+source byte for byte with SHA-256
+`ad29bf59fa19555a5fc9f0d9ad8106669d4c764a623ce62c59bb325f56ac82b4`.
+
+The unchanged live conductor also passed a fresh regression with the pinned
+Qwen local model, Docker worker, and no external credentials. The draft failed
+with `NameError`, corrected itself, and verified gate 42. A fresh process
+restored the model and draft and produced a second verified gate-42 receipt.
+The restored status matched the continuation output. The new mission SHA-256
+is `d6a8cb0f0404ef886db6f416614988c204defe177a0d02f886850f066ec95c01`,
+retained at `/workspace/scratch/pop-arlm-regression/run.hE40uc/mission.json`.
+
+Exact live invocation in this workspace:
+
+```sh
+env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
+  PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+  POP_MODEL_BACKEND=local POP_PYTHON=/tmp/pop-python/bin/python \
+  POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+  POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+  POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+  POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-regression \
+  bash tests/conductor-live.sh
+```
