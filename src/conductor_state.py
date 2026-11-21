@@ -51,6 +51,15 @@ def restore_development(agent, state):
     random.setstate((version, tuple(rng), cached))
 
 
+def verify_model_identity(checkpoint, identity):
+    saved = checkpoint.get("modelIdentity")
+    if saved is None and checkpoint.get("version") == 1 and identity["backend"] == "openai":
+        # Version 1 checkpoints predate explicit backend selection.
+        saved = {"backend": "openai", "model": checkpoint.get("model")}
+    if saved != identity:
+        raise ValueError("Checkpoint model identity or inference settings differ from this run")
+
+
 def write_checkpoint(path, state):
     with NamedTemporaryFile(mode="w", dir=path.parent, delete=False, encoding="utf-8") as stream:
         pending = stream.name

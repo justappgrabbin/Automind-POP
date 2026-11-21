@@ -39,3 +39,52 @@ same tropical DMS coordinate to gate 38. The providers differed by one arcsecond
 in their stored arc because their conversions round differently. This compares
 mandala mappings using one approximate ephemeris. It does not validate the
 ephemeris against an external astronomical reference.
+
+## Local quantized inference
+
+The Qwen and TinyLlama archives were verified against the SHA-256 digests in
+the source inventory. The CPU runtime used the upstream llama-cpp-python
+0.3.36 manylinux wheel. The older 0.3.18 wheel found during setup depended on
+musl and could not load on this glibc environment.
+
+Qwen2.5-Coder-3B-Instruct Q4_K_M passed the real probe over AutoMind's query
+boundary with a configured 8192-token context, three CPU threads, and no API
+credentials. It produced plain text `42` and structured `{"answer": 42}`.
+The calls took 5.276 s and 8.809 s, with 4.319 s model load and 3,888,560 KiB
+process peak RSS. These are single-run measurements on an AMD EPYC host with
+a two-CPU cgroup budget. They qualify the local inference path for the live
+mission. Schema rejection and checkpoint identity tests also passed.
+
+A read-only PyEphem 4.2.1 cross-check used
+`ephem.Ecliptic(ephem.Sun(when), epoch=when)` at `1990-01-01 12:00 UTC`.
+It returned tropical longitude 280.816738°, about 0.5043° below Kimi's
+281.321044° approximation. It falls inside Kimi's gate 64 interval
+[277.375°, 283°) and Foundry's gate 38 interval [279.5°, 285.125°). The
+reference position therefore does not reconcile the two mandala conventions.
+
+The first live Qwen draft exposed an environment mismatch. Three generated
+programs imported pandas after receiving AutoMind's archived benchmark package
+list, and the worker raised `ModuleNotFoundError` each time. The original
+verifier and trajectory retained the failed draft. The local conductor now
+supplies the actual worker package and file constraints through AutoMind's
+mission guidance. This preserves the original planner and coder loops.
+
+TinyLlama-1.1B-Chat-v1.0 Q4_K_M produced schema-valid `{"answer": 42}`
+with a 2048-token context. Its plain-text answer contradicted itself:
+“40 plus 2 = 42” followed by “42 is not a valid answer.” The structured
+contract passed and the plain-text output fails an exact-answer check.
+Peak process RSS was 1,322,796 KiB and load time was 0.901 s. The calls
+took 25.811 s and 16.387 s during a concurrent Qwen run, so the timings
+are contention measurements. TinyLlama remains a resource baseline.
+
+A second draft with supplemental worker guidance used the standard library,
+but treated the input object as an array and repeated a `TypeError`. The
+failed trajectory and model outputs were retained. The conductor's final
+address profile supplies the exact one-object contract and short response
+shapes through the original planner, coder and improver prompt hooks.
+
+The first run with the address-specific profile generated the correct arithmetic
+plan but dropped both directory names in the candidate. The worker reported
+`FileNotFoundError`, then `SystemExit` when the model added an exit handler
+without fixing the path. The final profile states the exact relative paths and
+literal CSV identifier again at the local query boundary and in worker feedback.

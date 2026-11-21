@@ -2,8 +2,14 @@
 set -euo pipefail
 
 python_bin=${POP_PYTHON:-python3}
-test_state=$(mktemp -d)
-trap 'rm -rf "$test_state"' EXIT
+if [[ -n ${POP_EVIDENCE_DIR:-} ]]; then
+  mkdir -m 700 -p "$POP_EVIDENCE_DIR"
+  test_state=$(mktemp -d "$POP_EVIDENCE_DIR/run.XXXXXX")
+  printf 'Evidence directory %s\n' "$test_state"
+else
+  test_state=$(mktemp -d)
+  trap 'rm -rf "$test_state"' EXIT
+fi
 checkpoint="$test_state/mission.json"
 coordinates='{"micro":{"gate":41,"line":4,"color":2,"tone":5,"base":3},"macro":{"planet":0,"dimension":0,"zodiac":0,"house":0},"emergent":{"degree":1,"minute":0,"second":0,"arcSecond":0}}'
 
@@ -23,7 +29,18 @@ assert draft["plan"] and continuation["plan"]
 assert draft["stage"] == "draft" and continuation["parentId"] == draft["nodeId"]
 attempts = [attempt for step in state["steps"] for attempt in step["attempts"]]
 assert attempts[0]["controlledFailure"] and attempts[0]["exception"] == "RuntimeError"
-assert any(step["verifiedReceipt"] and step["verifiedReceipt"]["gate"] == 42
-           for step in state["steps"])
+successful = next(attempt for attempt in attempts[1:] if attempt["receipt"])
+assert successful["codeSha256"] == successful["candidateSha256"]
+assert successful["candidateSha256"] != attempts[0]["candidateSha256"]
+assert draft["verifiedReceipt"] and draft["verifiedReceipt"]["gate"] == 42
+assert continuation["verifiedReceipt"] and continuation["verifiedReceipt"]["gate"] == 42
+if state["modelIdentity"]["backend"] == "local":
+    assert len(state["modelIdentity"]["sha256"]) == 64
+    calls = draft["modelCalls"]
+    assert any("POP controlled worker failure" in message["content"]
+               for call in calls for message in call["input"])
+    assert any(call["function"] == "submission_verify" and "rejected" not in call
+               for call in calls)
+    assert continuation["modelCalls"]
 print("Live AutoMind plan, worker failure, correction, verified POP receipt, and restart passed.")
 PY

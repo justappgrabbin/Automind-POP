@@ -50,8 +50,8 @@ bash tests/build-execution-worker.sh
 python tests/conductor_components.py
 ```
 
-Set `POP_MODEL` to an available chat completions model and `OPENAI_API_KEY`
-to its credential in the conductor environment. Set `OPENAI_BASE_URL` to the
+For the optional external backend, set `POP_MODEL` to an available chat
+completions model and `OPENAI_API_KEY` to its credential in the conductor environment. Set `OPENAI_BASE_URL` to the
 provider's OpenAI-compatible API base URL when using a different provider.
 Choose a model that supports tool calls and the sampling parameters used by the
 original AutoMind backend.
@@ -77,3 +77,32 @@ node src/cli.mjs latest-position .pop/state.json
 Kimi derives an approximate position from the supplied UTC date and time.
 Foundry independently maps that tropical coordinate into its mandala.
 The persisted output retains each provider's result and the differences.
+
+### Credential-free local model
+
+Install the local inference dependency in the conductor environment. On x86-64
+Linux with Python 3.12, the upstream CPU wheel works without a C++ toolchain.
+
+```sh
+python -m pip install --only-binary llama-cpp-python \
+  --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu \
+  -r src/local-model-requirements.txt
+export POP_MODEL_BACKEND=local
+export POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M
+export POP_GGUF=/absolute/path/qwen2.5-coder-3b-instruct-q4_k_m.gguf
+export POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7
+python tests/local_model_contract.py
+POP_PYTHON=python bash tests/conductor-live.sh
+```
+
+The pinned weight revision and artifact are listed in
+[the source inventory](docs/SOURCE_INVENTORY.md). The model runs in the
+conductor process. The existing Docker worker executes generated candidates in
+a separate network-disabled container. The local backend needs a local weight
+file and uses no API key. `POP_MODEL_CONTEXT` and `POP_MODEL_THREADS` default to
+8192 and 3. Use the same settings and GGUF digest to resume a checkpoint.
+Select `POP_MODEL_BACKEND=openai` to use the optional external provider.
+
+Set `POP_EVIDENCE_DIR` for the acceptance script to retain checkpoints and
+outputs in a private run directory. Local checkpoints include compiled prompts
+and raw model outputs for audit and contain user mission data.

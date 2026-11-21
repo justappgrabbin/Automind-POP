@@ -1,8 +1,10 @@
 import logging
+from contextvars import ContextVar
 from . import backend_openai
 from .utils import OutputType, PromptType, compile_prompt_to_md, FuncSpec
 
 logger = logging.getLogger("automind")
+query_backend = ContextVar("automind_query_backend", default=None)
 
 
 def query(
@@ -42,14 +44,14 @@ def query(
 
     # Handle models with beta limitations
     # ref: https://platform.openai.com/docs/guides/reasoning/beta-limitations
-    if model.startswith("o1"):
+    provider = query_backend.get()
+    if provider is None and model.startswith("o1"):
         if system_message:
             user_message = system_message
         system_message = None
         model_kwargs["temperature"] = 1
 
-    # query_func = backend_anthropic.query if "claude-" in model else backend_openai.query
-    query_func = backend_openai.query
+    query_func = backend_openai.query if provider is None else provider
     system_message = compile_prompt_to_md(system_message) if system_message else None
     user_message = compile_prompt_to_md(user_message) if user_message else None
 

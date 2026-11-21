@@ -46,3 +46,19 @@ The POP adapter calls the original `Agent.step()` directly. The worker image run
 the unchanged original interpreter. POP uses the original trajectory serializer
 and records improvement-parent IDs, the step counter, retrieval feedback,
 analysis, RNG state, and start time alongside the resulting trajectory.
+
+## Local inference qualification candidates
+
+| Candidate | Weight source and SHA-256 | Intended role |
+| --- | --- | --- |
+| Qwen2.5-Coder-3B-Instruct Q4_K_M | [Publisher GGUF at `f74adce6`](https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct-GGUF/tree/f74adce6aa16316c625447af059dbebe4983757c), `724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7` | First local conductor candidate |
+| TinyLlama-1.1B-Chat-v1.0 Q4_K_M | [Quantization archive at `52e7645b`](https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/tree/52e7645ba7c309695bec7ac98f4f005b139cf465), `9fecc3b3cd76bba89d504f29b616eedf7da85b96540e490ca5824d3f7d2776a0` | Smaller CPU resource baseline |
+
+The optional in-process runtime is `llama-cpp-python==0.3.36`. Weights stay
+outside Git. See each publisher's terms before distributing weight files.
+
+The prospective native Model Maker donor remains [Stellarproximology Lab
+TRIDENT at `dd31be0`](https://github.com/justappgrabbin/Stellarproximology-lab/tree/dd31be007da9829df74460a82331aecf8634a1df).
+Its original CPU suites passed real weight training, checkpoint revision/reload,
+local inference, and rejection of unapproved records in read-only donor probes.
+The local GGUF adapter does not import or promote those TRIDENT weights.

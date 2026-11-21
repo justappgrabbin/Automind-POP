@@ -13,25 +13,39 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from functools import partial
 from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "vendor" / "automind"))
 
 from automind.agent import Agent
+from automind.backend import query_backend
+from automind.coder import OneShotCoder
+from automind.improver import OneShotImprover
+from automind.planner import OneShotPlanner
 from automind.interpreter import ExecutionResult
 from automind.trajectory import Trajectory
 from automind.utils.config import Config, _load_cfg, config_manager
 from omegaconf import OmegaConf
-from conductor_state import restore_development, restore_trajectory, snapshot, write_checkpoint
+from conductor_state import restore_development, restore_trajectory, snapshot, verify_model_identity, write_checkpoint
 
-MISSION = """Read the zero-based YNIV coordinate object from input/coordinates.json.
-Resolve the one-based gate by converting the micro gate to the contract convention.
-Write submission/submission.csv with exactly the header id,gate and one data row
-with id address and the resolved integer gate. Use Python's standard library and
-relative paths. Print the validation metric gate_accuracy=1.0 only if your
-implementation's independent assertions pass. There is no training or holdout
-dataset for this exact arithmetic task. The POP spine verifies the actual CSV."""
+MISSION = """Convert one zero-based YNIV gate to its one-based equivalent (+1).
+Read input/coordinates.json. It contains ONE JSON object, for example
+{"micro":{"gate":7},"macro":{},"emergent":{}}. Read the integer at micro.gate.
+Write submission/submission.csv: header id,gate and ONE row with the literal id
+address and the converted gate. Check the conversion and CSV, and print the
+metric gate_accuracy=1.0 after the checks succeed. POP independently verifies
+the CSV against its address resolution. This is an arithmetic task."""
+WORKER_GUIDANCE = (
+    "The candidate runs in an isolated, offline worker with a 10-second limit. "
+    "Use only Python standard library. Read the exact relative path input/coordinates.json "
+    "and extract the integer at micro.gate in the JSON object. Write the exact relative "
+    "path submission/submission.csv with header id,gate and one row whose first cell "
+    "is the literal string address. Keep the response short and use the requested response format. During a retry, "
+    "correct the fault exposed by the execution output and leave harness exceptions "
+    "out of candidate code."
+)
 DOCKER_ENV = ("PATH", "HOME", "DOCKER_HOST", "DOCKER_CONTEXT", "DOCKER_CONFIG", "XDG_RUNTIME_DIR")
 
 
@@ -78,7 +92,9 @@ class POPInterpreter:
         submission = self.path / "submission" / "submission.csv"
         submission.unlink(missing_ok=True)
         injected = self.inject_failure and not self.attempts
-        executed_code = 'raise RuntimeError("POP controlled worker failure")' if injected else code
+        executed_code = code
+        if injected:
+            executed_code += '\nraise RuntimeError("POP controlled worker failure. Retry with explicit input validation.")'
         try:
             observed = node_call("execute-candidate.mjs", payload={
                 "code": executed_code, "coordinates": self.coordinates,
@@ -90,6 +106,7 @@ class POPInterpreter:
         execution = ExecutionResult(**observed["execution"])
         attempt = {
             **observed["run"],
+            "candidate": code,
             "candidateSha256": hashlib.sha256(code.encode()).hexdigest(),
             "controlledFailure": injected,
             "exception": execution.exc_type,
@@ -110,9 +127,48 @@ class POPInterpreter:
                     "sha256": hashlib.sha256(content).hexdigest(),
                     "gate": self.reference["address"]["gate"],
                 }
+        if execution.exc_type is not None:
+            execution.term_out.append(f"\nPOP worker contract: {WORKER_GUIDANCE}")
         attempt["output"] = execution.term_out
         self.attempts.append(attempt)
         return execution
+
+
+class AddressWorkerPrompt:
+    """Describe the real POP worker through the archived prompt interfaces."""
+
+    @property
+    def _prompt_environment(self):
+        return {"Worker environment": WORKER_GUIDANCE}
+
+
+class AddressPlanner(AddressWorkerPrompt, OneShotPlanner):
+    @property
+    def _prompt_plan_guideline(self):
+        return {"Plan guideline": "Cover the exact input path, object shape, one-row CSV and check."}
+
+    @property
+    def _prompt_resp_fmt(self):
+        return {"Response format": "Return a plan of at most five short bullets. Do not include code."}
+
+
+class AddressCoder(AddressWorkerPrompt, OneShotCoder):
+    @property
+    def _prompt_code_guideline(self):
+        return {"Code guideline": "Use straightforward standalone Python and satisfy the exact mission contract."}
+
+    @property
+    def _prompt_resp_fmt(self):
+        return {"Response format": "Return exactly one fenced Python code block, with no explanation."}
+
+
+class AddressImprover(AddressWorkerPrompt, OneShotImprover):
+    @property
+    def _prompt_improve_guideline(self):
+        return {"Improve guideline": (
+            "Use the previous execution to identify one concrete correction or robustness improvement. "
+            "Keep the exact input, output and verification contract. Keep the think and plan sections short."
+        )}
 
 
 def create_agent(workspace, model, trajectory, steps, interpreter):
@@ -122,6 +178,7 @@ def create_agent(workspace, model, trajectory, steps, interpreter):
     cfg.exp_name = "pop-address-mission"
     cfg.agent.steps = steps
     cfg.agent.analyzer.strategy = "none"
+    cfg.agent.k_fold_validation = 1
     cfg.agent.search.num_drafts = 1
     cfg.agent.search.debug_prob = 1
     cfg.agent.search.hpo_prob = 0
@@ -129,11 +186,16 @@ def create_agent(workspace, model, trajectory, steps, interpreter):
         cfg.agent[stage].model = model
     cfg = OmegaConf.merge(OmegaConf.structured(Config), cfg)
     config_manager.cfg = cfg
-    return Agent(task_desc={"Task goal": MISSION}, cfg=cfg, traj=trajectory,
-                 interpreter=interpreter)
+    task = {"Task goal": MISSION}
+    agent = Agent(task_desc=task, cfg=cfg, traj=trajectory, interpreter=interpreter)
+    agent.planner = AddressPlanner(model, task)
+    agent.coder = AddressCoder(model, task, interpreter=agent.interpreter)
+    agent.improver = AddressImprover(model, task)
+    return agent
 
 
-def run_steps(path, coordinates, model, steps, inject_failure):
+def run_steps(path, coordinates, model, steps, inject_failure, provider=None):
+    identity = provider.identity if provider else {"backend": "openai", "model": model}
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path.with_suffix(path.suffix + ".lock"), "a", encoding="utf-8") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -142,19 +204,27 @@ def run_steps(path, coordinates, model, steps, inject_failure):
             (workspace / "submission").mkdir()
             if path.exists():
                 checkpoint = json.loads(path.read_text())
-                if (checkpoint["version"] != 1 or checkpoint["coordinates"] != coordinates
+                if (checkpoint["version"] not in (1, 2) or checkpoint["coordinates"] != coordinates
                         or checkpoint["model"] != model):
                     raise ValueError("Checkpoint version, coordinates, or model differ from the mission")
+                verify_model_identity(checkpoint, identity)
                 trajectory = restore_trajectory(checkpoint["development"])
             else:
                 reference = node_call("cli.mjs", "resolve-address",
                                       str(workspace / "reference.json"), json.dumps(coordinates))
                 checkpoint = {
-                    "version": 1, "coordinates": coordinates, "model": model,
+                    "version": 2, "coordinates": coordinates, "model": model,
                     "reference": reference, "steps": [],
                 }
                 trajectory = Trajectory()
 
+            checkpoint["modelIdentity"] = identity
+            checkpoint["executionSettings"] = {
+                "capability": "execute_automind_python",
+                "workerImage": "automind-pop-execution:1",
+                "network": "none",
+            }
+            checkpoint["version"] = 2
             attempts = []
             interpreter = POPInterpreter(workspace, coordinates, checkpoint["reference"], attempts,
                                          inject_failure and not checkpoint["steps"])
@@ -164,7 +234,11 @@ def run_steps(path, coordinates, model, steps, inject_failure):
 
             for _ in range(steps):
                 try:
-                    node = agent.step()
+                    token = query_backend.set(partial(provider.query, guidance=WORKER_GUIDANCE) if provider else None)
+                    try:
+                        node = agent.step()
+                    finally:
+                        query_backend.reset(token)
                 except Exception:
                     if interpreter.infrastructure_error is not None:
                         raise interpreter.infrastructure_error
@@ -184,6 +258,7 @@ def run_steps(path, coordinates, model, steps, inject_failure):
                     "plan": node.plan,
                     "buggy": node.is_buggy,
                     "attempts": list(attempts),
+                    "modelCalls": list(provider.observations) if provider else [],
                     "verifiedReceipt": final_run["receipt"] if not node.is_buggy else None,
                     "verifiedSubmission": (
                         base64.b64encode((workspace / "submission" / "submission.csv").read_bytes()).decode()
@@ -193,8 +268,10 @@ def run_steps(path, coordinates, model, steps, inject_failure):
                 checkpoint["development"] = snapshot(agent)
                 write_checkpoint(path, checkpoint)
                 attempts.clear()
+                if provider:
+                    provider.observations.clear()
                 interpreter.inject_failure = False
-            return {"steps": checkpoint["steps"], "currentStep": agent.current_step}
+            return {"steps": checkpoint["steps"], "currentStep": agent.current_step, "modelIdentity": identity}
 
 
 def main():
@@ -208,16 +285,33 @@ def main():
     if args.status:
         checkpoint = json.loads(args.checkpoint.read_text())
         trajectory = restore_trajectory(checkpoint["development"])
-        print(json.dumps({"steps": checkpoint["steps"], "currentStep": len(trajectory)}))
+        print(json.dumps({
+            "steps": checkpoint["steps"], "currentStep": len(trajectory),
+            "modelIdentity": checkpoint.get("modelIdentity", {
+                "backend": "openai", "model": checkpoint["model"],
+            }),
+        }))
         return
     model = os.environ.get("POP_MODEL")
-    if not model or not os.environ.get("OPENAI_API_KEY"):
-        parser.error("Set POP_MODEL and OPENAI_API_KEY for an OpenAI-compatible chat completions endpoint")
+    backend = os.environ.get("POP_MODEL_BACKEND", "openai")
+    if backend not in {"openai", "local"} or not model:
+        parser.error("Set POP_MODEL and select POP_MODEL_BACKEND=local or openai")
+    provider = None
+    if backend == "local":
+        from local_model import LocalModel
+        try:
+            provider = LocalModel(model, os.environ["POP_GGUF"], os.environ["POP_GGUF_SHA256"],
+                                  context=int(os.getenv("POP_MODEL_CONTEXT", "8192")),
+                                  threads=int(os.getenv("POP_MODEL_THREADS", "3")))
+        except (KeyError, OSError, ValueError) as error:
+            parser.error(f"Local model configuration: {error}")
+    elif not os.environ.get("OPENAI_API_KEY"):
+        parser.error("Set OPENAI_API_KEY for the selected OpenAI-compatible backend")
     if args.coordinates is None:
         parser.error("Coordinates JSON is required")
     logging.basicConfig(level=logging.WARNING)
     print(json.dumps(run_steps(args.checkpoint, args.coordinates, model,
-                               args.steps, args.inject_failure)))
+                               args.steps, args.inject_failure, provider)))
 
 
 if __name__ == "__main__":
