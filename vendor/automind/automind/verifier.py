@@ -1,4 +1,5 @@
 import logging
+import math
 from abc import ABC, abstractmethod
 from typing import Optional, cast
 
@@ -124,9 +125,11 @@ class SubmissionVerifier(Verifier):
             ),
         )
 
-        # if the metric isn't a float then fill the metric with the worst metric
-        if not isinstance(response["metric"], float):
-            response["metric"] = None
+        # JSON Schema numbers can reach us as either integers or floats.
+        metric = response["metric"]
+        response["metric"] = (
+            float(metric) if type(metric) in (int, float) and math.isfinite(metric) else None
+        )
 
         logger.info(f"Verifier response: {response}")
         return response

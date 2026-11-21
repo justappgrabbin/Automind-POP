@@ -218,7 +218,12 @@ class OneShotCoder(Coder):
 
         prompt = self._get_debug_diff_prompt(plan, data_analysis, based_code)
         
+        last_execution = (None, None)
         for _ in range(retry):
+            failed_code, failed_run = last_execution
+            if failed_run is not None:
+                prompt["Previous Candidate"] = wrap_code(failed_code)
+                prompt["Previous Execution Error"] = "".join(failed_run.term_out)
             response = query(
                 system_message=prompt,
                 user_message=None,
@@ -236,11 +241,9 @@ class OneShotCoder(Coder):
                 logger.info(f"=== END OF MODIFIED CODE ===")
 
                 if result[0] is not None:
-                    return result
-                else:
-                    # Log the execution failure for diff-based debugging
-                    if result[1] and result[1].exc_type:
-                        logger.info(f"Code testing failed with diff-based debugging with the following error: \n{result[1].term_out}\n")
+                    if not result[1].exc_type:
+                        return result
+                    last_execution = result
             else:
                 # Fallback to regular generation
                 logger.info("No valid diff blocks found, falling back to regular generation")
@@ -250,6 +253,7 @@ class OneShotCoder(Coder):
                         ast.parse(code)
                         logger.info("Fallback code generation succeeded.")
                         exec_result = self.interpreter.run(code)
+                        last_execution = (code, exec_result)
                         if exec_result.exc_type:
                             logger.info(f"Code testing failed with fallback generation with the following error: \n{exec_result.term_out}\n")
                         else:
@@ -258,7 +262,7 @@ class OneShotCoder(Coder):
                         logger.info(f"Fallback code generation failed: {e}")
         
         logger.error("Diff-based debug failed after retries")
-        return None, None
+        return last_execution
 
     def step(
         self,
@@ -273,6 +277,7 @@ class OneShotCoder(Coder):
 
         last_failed_code: Optional[str] = None
         last_error_output: Optional[str] = None
+        last_execution = (None, None)
         for _ in range(retry):
             prompt = self.prompt_integration(
                 plan=plan,
@@ -295,6 +300,7 @@ class OneShotCoder(Coder):
                     logger.info(f"Code generation successed. Implemented code: \n\n{code}\n\n")
                     logger.info(f"Agent is executing the code")
                     exec_result = self.interpreter.run(code)
+                    last_execution = (code, exec_result)
                     # Check if the code has raised an exception
                     if exec_result.exc_type:
                         logger.info(f"Code testing failed with the following error: \n{exec_result.term_out}\n")
@@ -312,7 +318,7 @@ class OneShotCoder(Coder):
                 logger.info("Code generation failed, retrying ...")
                 last_error_output = "Failed to extract a valid code block from the model response."
         logger.error(f"Code generation failed after {retry} retries")
-        return None, None
+        return last_execution
 
 
 class StepByStepCoder(Coder):

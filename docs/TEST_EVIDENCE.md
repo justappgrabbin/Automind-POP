@@ -16,3 +16,16 @@ Verified on Node 24.22.3 and Python 3.12.14.
 SynthAi coverage includes core runtime and adapters, routing, application mounting, world events, morph state, persistence, resonance, experiment rollback, state-space operations, historical donor recovery, and grammar learning and generation with a downstream consumer. The PyEphem provider runs, and the donor code identifies its Penta position calculation as a placeholder. The Skynthia test verifies morph-expression state and records its absent renderer. The diagnostic build stages a subset of runtime files. Browser operation and live GitHub publishing were outside these checks.
 
 The POP failure and retry tests use the real engines. The operator supplies corrected input. Model-driven replanning, durable AutoMind adaptation, and model-backed restart acceptance are pending.
+
+## Original conductor integration
+
+| Check | Result |
+| --- | --- |
+| `bash tests/build-execution-worker.sh` | Built the pinned Python image with local wheels and container build networking disabled. |
+| `python tests/conductor_components.py` | Passed with the real SynthAi reference provider, Node ProcessFabric, Docker worker, and original AutoMind interpreter. A controlled RuntimeError and an incorrect CSV produced distinct feedback. The good CSV produced a gate 42 receipt. Original Agent draft/debug routing, improvement-parent identity, best node, retrieval flags, and the counter were checked against the restored trajectory in a fresh process. Candidate code verified the conductor credential sentinel was absent from its environment. |
+| `POP_PYTHON=python bash tests/conductor-live.sh` | Blocked before any model request. The conductor returned exit 2 with `Set POP_MODEL and OPENAI_API_KEY for an OpenAI-compatible chat completions endpoint`. The live acceptance script remains available for a configured endpoint. |
+| `npm test` and `bash tests/address-cli.sh` | Passed existing POP regression tests. |
+
+The conductor component test supplies known candidate programs so it can exercise
+the existing engines without model credentials. A live model must generate the
+original plan and corrected candidate before M1 can be marked accepted.

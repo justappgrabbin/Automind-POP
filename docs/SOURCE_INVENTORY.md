@@ -31,3 +31,18 @@ The Drive IDs in [the integration plan](INTEGRATION_PLAN.md) identify the origin
 - The Lossless vault and Success Network share 157 byte-identical source files at matching relative paths, including recovered runtime upgrades. This match is limited to Python, TypeScript, JavaScript, and MJS files. The inventory retains both lineages.
 - YNIV coordinates, the Kimi DMS wheel, and the Foundry mandala have different conventions. The POP address command qualifies the YNIV route and validates its translated spine address. It records the original thirteen contract fields and preserves the spine representation in the receipt. Unresolved contract arc and zodiac fields stay null.
 - The Biverse dimensional engine computes weighted affirmative observations and explicit clarity. The broader source architecture also defines observer, scale, phase, condition, time, and evidence factors. The mounted command covers the engine’s weighted observations and clarity operations.
+
+## AutoMind conductor integration
+
+The untouched AutoMind archive import remains recoverable from commit
+`2d938b3`. The conductor integration adds an optional interpreter injection to
+the original Agent and delays loading retrieval-specific dependencies until a
+retrieval strategy needs them. It updates the original one-shot coder to preserve
+the final real failure after retries and to put the last observed error in a
+debug retry prompt. The original submission verifier now accepts finite JSON
+number metrics with integer or fractional representations.
+
+The POP adapter calls the original `Agent.step()` directly. The worker image runs
+the unchanged original interpreter. POP uses the original trajectory serializer
+and records improvement-parent IDs, the step counter, retrieval feedback,
+analysis, RNG state, and start time alongside the resulting trajectory.

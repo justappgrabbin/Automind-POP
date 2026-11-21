@@ -1,17 +1,15 @@
 # Implementation checkpoint
 
-## Verified
-
-- The original AutoMind source, ML knowledge corpus, tests and benchmark configuration are preserved under `vendor/automind`.
-- POP runs real YNIV address calculations through the imported SynthAi ProcessFabric. It records provider routing, verifies the execution-spine representation, and persists the result with the downstream verification receipt.
-- The runtime also executes the original Biverse perspective engine. The CLI exposes weighted observations and optional explicit clarity over Movement, Evolution, Being, Design, and Space.
-- A network-disabled Docker smoke test ran the original interpreter as a non-root user and verified exception detection and corrected execution.
-- Address and perspective results use the same POP state file. The address acceptance test exercises process restart and a corrected retry.
+- The original AutoMind source, ML knowledge corpus, tests and benchmark configuration are preserved under `vendor/automind`, with the pristine extraction in commit `2d938b3`.
+- POP computes YNIV addresses through SynthAi's ProcessFabric, records provider routing, verifies execution-spine addresses, and persists downstream consumption receipts.
+- POP runs Biverse's original perspective engine for weighted observations and explicit clarity over Movement, Evolution, Being, Design, and Space.
+- The [conductor runner](../src/conductor.py) invokes the original `Agent.step()` and supplies POP's isolated Python capability as the agent's interpreter. POP feeds worker exceptions and rejected submissions back as original `ExecutionResult` values. The original one-shot coder and search policy drive retries.
+- A real worker component run verified container execution, controlled exception detection, incorrect CSV rejection, successful CSV consumption, and original development state restoration in a new Python process. The supplied candidates were trusted test programs.
 
 See [test evidence](TEST_EVIDENCE.md) and [source inventory](SOURCE_INVENTORY.md).
 
 ## Exact next action
 
-Configure a model endpoint and use the isolated interpreter test image as the starting point for a dedicated execution worker. Wire a one-step runner around the original `Agent.step()` in [agent.py](../vendor/automind/automind/agent.py). It must transfer the original plan and node IDs through the POP capability boundary and accept a failure observation on the next step. Use the existing address acceptance case for the controlled failure. On success, capture original trajectory lineage and a POP receipt and verify a fresh worker resumes the recorded state.
+Configure `POP_MODEL` and `OPENAI_API_KEY` for a tool-capable OpenAI-compatible chat completions endpoint. Set `OPENAI_BASE_URL` for a non-default endpoint. Run `POP_PYTHON=python bash tests/conductor-live.sh` with the worker image and documented dependencies. The acceptance command invokes the original planner, uses a real worker failure as feedback to the coder, resumes `Agent.step()` in a second process, and checks the persisted lineage and verified receipt.
 
-The original public `Experiment.run()` passes `exec_callback` to `Agent.step()`. The recovered `Agent.step` signature takes no such argument. The integration should call the original agent directly, as `automind/run.py` does.
+After that run, record the live model and evidence, then move to the M2 positional and Human Design provider comparison in [the integration plan](INTEGRATION_PLAN.md).

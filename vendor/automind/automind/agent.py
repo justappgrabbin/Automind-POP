@@ -14,7 +14,6 @@ from .utils.config import Config
 from .utils.metric import MetricValue, WorstMetricValue
 from .utils.response import wrap_code
 
-from .knowledge_retriever import TricksRetriever, PapersRetriever
 from .data_analyzer import DataPreviewer
 from .planner import OneShotPlanner, KnowledgePlanner
 from .coder import OneShotCoder, StepByStepCoder, MixtureCoder
@@ -43,6 +42,8 @@ class Agent:
         task_desc: str,
         cfg: Config,
         traj: Trajectory,
+        *,
+        interpreter: Interpreter | None = None,
     ):
         super().__init__()
         self.task_desc = task_desc
@@ -57,11 +58,14 @@ class Agent:
         self._data_analysis: str = None
 
         # Set up the interpreter based on the config
-        self.interpreter = Interpreter(
+        self.interpreter = interpreter if interpreter is not None else Interpreter(
             cfg.workspace_dir, **OmegaConf.to_container(cfg.exec)
         )
 
         # Set up the knowledge retriever based on the config
+        if self.acfg.retriever.strategy in {"papers + tricks", "tricks", "papers"}:
+            from .knowledge_retriever import TricksRetriever, PapersRetriever
+
         if self.acfg.retriever.strategy == "papers + tricks":
             self.papers_retriever = PapersRetriever(
                 model=self.acfg.retriever.model,
