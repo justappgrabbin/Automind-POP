@@ -29,3 +29,13 @@ The POP failure and retry tests use the real engines. The operator supplies corr
 The conductor component test supplies known candidate programs so it can exercise
 the existing engines without model credentials. A live model must generate the
 original plan and corrected candidate before M1 can be marked accepted.
+
+## M2 positional provider comparison
+
+`npm test` exercised the new `compare_position` capability and restored the
+saved disagreement. For the Sun at `1990-01-01T12:00:00Z`, Kimi's approximate
+position is Capricorn 11°19′15″. Kimi mapped it to gate 64 and Foundry mapped the
+same tropical DMS coordinate to gate 38. The providers differed by one arcsecond
+in their stored arc because their conversions round differently. This compares
+mandala mappings using one approximate ephemeris. It does not validate the
+ephemeris against an external astronomical reference.

@@ -5,6 +5,7 @@ import { JsonFilePersistence } from '../vendor/synthai/runtime/json-file-persist
 import { CapabilityRegistryService } from '../vendor/synthai/registry/capability-registry.mjs';
 import { AddressService, ADDRESS_FIELDS } from '../vendor/synthai/services/address-service.mjs';
 import { locatePerspective, perspectiveProvider } from './perspective.mjs';
+import { comparePosition, positionCapability } from './position-comparison.mjs';
 
 const capability = 'resolve_address';
 const provider = 'recovered:yniv-addressing-engine';
@@ -59,6 +60,11 @@ export async function openRuntime(statePath) {
     run: ({ input }) => locatePerspective(input),
   });
 
+  execution.register({
+    id: positionCapability,
+    run: ({ input }) => comparePosition(address, input),
+  });
+
   let running = false;
   async function runMission(path, operation) {
     if (running) throw new Error('A mission is already running');
@@ -77,6 +83,14 @@ export async function openRuntime(statePath) {
   return {
     latest: () => state.get('address.latest', null),
     latestPerspective: () => state.get('perspective.latest', null),
+    latestPosition: () => state.get('position.latest', null),
+    async comparePosition(request) {
+      const input = structuredClone(request);
+      return runMission('position.latest', async () => {
+        const output = await execution.execute(positionCapability, input);
+        return { id: randomUUID(), capability: positionCapability, input, ...output };
+      });
+    },
     async perspective(request) {
       const input = structuredClone(request);
       if (!input?.expressions || typeof input.expressions !== 'object' ||

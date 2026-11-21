@@ -66,3 +66,14 @@ checkpoint, call `python src/conductor.py CHECKPOINT COORDINATES_JSON` and use
 the same checkpoint and coordinates to continue. Read the checkpoint with
 `python src/conductor.py CHECKPOINT --status`. Store checkpoints privately
 because they contain mission inputs, generated code, and execution diagnostics.
+
+Compare the Kimi and Foundry mandala mappings at the same tropical position.
+
+```sh
+node src/cli.mjs compare-position .pop/state.json '{"birthDate":"1990-01-01","birthTime":"12:00"}'
+node src/cli.mjs latest-position .pop/state.json
+```
+
+Kimi derives an approximate position from the supplied UTC date and time.
+Foundry independently maps that tropical coordinate into its mandala.
+The persisted output retains each provider's result and the differences.
