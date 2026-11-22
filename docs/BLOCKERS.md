@@ -43,3 +43,7 @@ address, provider and evidence are pinned as provenance for future
 conditioning. Stage 2 establishes no learned interpretation qualification and
 makes no changes to training, model weights, or the conductor. Stage 3
 requires review and approval.
+
+## Replay regression execution
+
+The newly added fresh-process neural replay assertion needs execution in the existing TRIDENT environment before merge. It intentionally checks bit-identical `logitSha256`; nondeterministic backend behavior, if observed, must be investigated and recorded rather than silently relaxing the assertion. No new Stage 3 implementation is authorized by this test-only branch.
