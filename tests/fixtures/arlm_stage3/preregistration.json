@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "arlm-perspective-ranking-stage3-v1",
+  "baselineCommit": "6faf759a95fbb698f7a2097d1d03f5cd452517f2",
+  "status": "preregistered-unqualified",
+  "independentUnit": "case family",
+  "split": {
+    "algorithm": "connected-family-sha256-bucket-v1",
+    "salt": "arlm-perspective-ranking-stage3-v1",
+    "weights": {"train": 60, "validation": 20, "test": 20},
+    "groupBy": ["family", "expressionFamily", "sourceLineage", "templateFamily"],
+    "rules": "Keep all contextual conditions and paraphrases of each case family together. Freeze and digest the case inventory and labels before training. Select thresholds on validation only. Record predictions before accessing private test labels."
+  },
+  "counts": {
+    "minimumIndependentTestFamilies": 600,
+    "minimumIndependentTestFamiliesPerPrimaryCondition": 75,
+    "countingRule": "Each independent family counts in exactly one primary condition. Extra variants count as condition runs only. Report counts for both."
+  },
+  "conditions": [
+    "no-context", "correct-context", "swapped-context", "equivalent-frame",
+    "ambiguous", "unresolved", "stale", "lossy"
+  ],
+  "requiredSeeds": [11, 23, 37, 53, 71],
+  "learnedBaselines": ["lexical-only", "context-label-only", "relations-only"],
+  "reference": "ARLM Stage 2 deterministic resolver",
+  "primaryMetric": "pair accuracy on independently labeled paired frames",
+  "metrics": [
+    "pair accuracy", "decision macro-F1", "evidence citation precision", "evidence citation recall",
+    "abstention precision", "abstention recall", "risk-coverage", "calibration error",
+    "equivalent-frame agreement", "valid-perspective regression"
+  ],
+  "uncertainty": {
+    "confidenceLevel": 0.95,
+    "method": "paired case-family cluster bootstrap within seed",
+    "bootstrapReplicates": 10000,
+    "bootstrapSeed": 307,
+    "seedReporting": "Report per-seed results and across-seed mean, standard deviation, and range. Compare the mean paired improvement against the strongest validation-selected learned baseline by resampling whole test families across all paired seeds."
+  },
+  "controls": [
+    "compare matching seeds, splits, and training budgets",
+    "ablate or shuffle perspective, observations, typed relations and context",
+    "permute candidate and evidence order and remap opaque identifiers",
+    "test unsupported and contradicted evidence and equal candidate budgets",
+    "exclude bank smoke family and answer-bearing receipts or label features"
+  ],
+  "gates": {
+    "minPairAccuracy": 0.8,
+    "minDecisionMacroF1": 0.75,
+    "minCitationPrecision": 0.9,
+    "minUnresolvedAbstention": 0.85,
+    "minEquivalentFrameAgreement": 0.95,
+    "maxPriorValidPerspectiveRegression": 0.02,
+    "minLowerConfidenceBoundForPairedImprovement": "strictly greater than zero",
+    "frozenParameterIntegrity": 1.0,
+    "restartRollbackContractPassRate": 1.0
+  },
+  "pairRule": "Include only families with independently established answers in both compared frames. A pair is correct only if both decisions and their meanings match the oracle. Report the eligible denominator."
+}

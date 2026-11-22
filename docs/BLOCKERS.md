@@ -43,3 +43,22 @@ address, provider and evidence are pinned as provenance for future
 conditioning. Stage 2 establishes no learned interpretation qualification and
 makes no changes to training, model weights, or the conductor. Stage 3
 requires review and approval.
+
+## ARLM Stage 3 Checkpoint 1 limits
+
+No independent Stage 3 qualification cases were available. The smoke-only
+`bank` family and synthetic partition-contract IDs do not count toward the
+preregistered 600 independent test families with 75 per primary condition.
+The current shortfall is 600 overall and 75 per condition. No evaluation
+thresholds were calibrated and no training seeds were run for Stage 3.
+
+The current preview uses graph-linked lexical assertions from one evidence
+revision, Biverse proportions, and the six-field frame. Candidate addresses
+are withheld uniformly pending a provider- and scope-aware eligibility
+contract. The current input has no separate learned transformation
+conditioning. Independently sourced future corpora still require review for
+source or template leakage inside natural-language content.
+
+The preview ranking, cited rows, and separate proposed decision are
+unvalidated neural outputs. The operational decision remains unresolved.
+Training, qualification and activation require approval after Checkpoint 1.

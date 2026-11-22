@@ -123,7 +123,7 @@ def candidates(graph, learning, evidence, context):
                     or any(record["origin"] not in edge.provenance for edge in edges)):
                 raise ValueError("Typed evidence graph and provenance mismatch")
             checked.add(digest)
-            if record["context"] == context:
+            if context is None or record["context"] == context:
                 found[digest] = record
     if checked != set(evidence):
         raise ValueError("Typed evidence graph is missing source links")

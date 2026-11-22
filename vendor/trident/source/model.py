@@ -66,10 +66,12 @@ class SpecialistHead(nn.Module):
         self.layers=nn.ModuleList([TransformerBlock(cfg.d_model,cfg.n_heads,cfg.head_d_ff,cfg.dropout) for _ in range(cfg.head_layers)])
         self.ln_out=nn.LayerNorm(cfg.d_model)
         self.lm_head=nn.Linear(cfg.d_model,cfg.vocab_size,bias=False)
-    def forward(self,x,chunks=None,mask=None):
+    def represent(self,x,chunks=None,mask=None):
         x=self.rag_gate(x,chunks)
         for layer in self.layers: x=layer(x,mask)
-        return self.lm_head(self.ln_out(x))
+        return self.ln_out(x)
+    def forward(self,x,chunks=None,mask=None):
+        return self.lm_head(self.represent(x,chunks,mask))
 
 class HeadRouter(nn.Module):
     def __init__(self,d_model,n=3):
@@ -97,7 +99,7 @@ class Trident(nn.Module):
             nn.init.normal_(m.weight,0,.02)
             if m.bias is not None: nn.init.zeros_(m.bias)
         elif isinstance(m,nn.Embedding): nn.init.normal_(m.weight,0,.02)
-    def forward(self,ids,rag=None,head=None,return_router=False,klein=None):
+    def forward(self,ids,rag=None,head=None,return_router=False,klein=None,*,return_representations=False):
         B,T=ids.shape
         mask=torch.triu(torch.full((T,T),float('-inf'),device=ids.device),diagonal=1)
         x=self.pos_enc(self.embed(ids))
@@ -118,6 +120,10 @@ class Trident(nn.Module):
                 chunks=chunks.to(device=ids.device,dtype=x.dtype)
             if klein_embedding is None: return chunks
             return klein_embedding if chunks is None else torch.cat((chunks,klein_embedding),dim=1)
+        if return_representations:
+            if head != 'research' or return_router:
+                raise ValueError('representations require the explicit research head')
+            return self.heads[head].represent(x,_rag(head),mask)
         if head:
             logits=self.heads[head](x,_rag(head),mask)
         else:

@@ -94,3 +94,13 @@ boundary while retaining all thirteen fields privately.
 | `src/runtime.mjs` and `vendor/synthai/services/address-service.mjs` | `arlm_address.mjs` runs the existing qualified YNIV route and canonical-spine verifier on evidence-supplied coordinates in temporary POP state. Mapping, routing and verification sources have distinct fingerprints. Other providers retain their own mappings; this adapter currently qualifies only YNIV. |
 | `src/arlm_state.py` and `src/arlm_contact.py` | Existing SQLite transaction and activation journal publish evidence, interpretation and attachments. Stage 2 bindings pin event, graph, address, perspective, model and input digests. The Stage 1 encounter, public slice and approval/export paths are reused. |
 | `vendor/trident/source/semantic_language_maker.py` and `model.py` | `arlm_trident_context.py` calls the donor encoder and real forward path on a pinned qualified checkpoint. The donor processes contextual triples through its existing feature and fusion path. The input artifact pins the full evidence and frame provenance. Learned perspective and address embeddings are a later contract. |
+
+## ARLM Stage 3 Checkpoint 1
+
+| Reused source | Integration |
+| --- | --- |
+| Stage 1 encounter and Stage 2 evidence graph | `arlm_inference.py` validates the active lineage and traverses the existing donor graph across all contexts for one evidence revision. It emits strict outcome-blind artifacts. `arlm_retrieval.py` applies the same bounded selection to every candidate. |
+| Biverse perspective engine | The preview carries all six frame fields and the original five proportions with clarity. The full donor observation remains in Stage 2. |
+| TRIDENT `source/model.py` and `source/semantic_language_maker.py` | A small optional hidden-representation return path reuses the original research head and retrieval fusion. The frozen adapter also uses the original eight Klein feature channels and bilinear relation composer. |
+| Existing Foundry registry | The preview verifies the registered parent checkpoint and records its identity and digests. The experimental research-head path carries its own unqualified status. |
+| Independent Stage 2 fixture oracle | A smoke-only private evaluation artifact references the oracle digest. `arlm_evaluation.py` validates the reference binding and implements family disjoint partitioning. |

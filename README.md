@@ -210,3 +210,30 @@ Run the positional meaning experiment and optionally save its sample artifacts.
 ```sh
 POP_ARLM_SAMPLE=/tmp/arlm-positional-meaning.json python tests/arlm_positional_meaning.py
 ```
+
+### Stage 3 Checkpoint 1 · Frozen TRIDENT preview
+
+Export an outcome-blind inference artifact from the ledger, then run it
+through a pinned Foundry checkpoint. Use the revision IDs for your workspace.
+
+```sh
+python src/arlm_cli.py .pop/arlm.sqlite inference-artifact 2 3 frame.json > inference.json
+python src/arlm_interpretation_adapter.py .pop/foundry "$REVISION" inference.json
+```
+
+The preview receives the original expression, the six-field frame, five
+Biverse proportions and optional clarity, and all source-linked candidate
+concepts from the selected evidence revision. It uses one retrieval policy
+and one four-row budget per candidate. It records dropped references. Version
+1 omits semantic addresses uniformly. The separate evaluator schema binds
+independent labels and supporting evidence to the exact inference digest.
+
+The preview emits candidate ranks, exploratory evidence references, and
+separate three-class decision scores. The proposal is uncalibrated and the
+operational decision is unresolved. A fresh child process can use the frozen
+research head with an existing, verified Foundry checkpoint. No adapter
+training or registration is needed for the preview.
+
+The independent evaluation protocol is pinned in
+`tests/fixtures/arlm_stage3/preregistration.json`. See
+`docs/TEST_EVIDENCE.md` for the executable acceptance and sample outputs.

@@ -260,3 +260,93 @@ env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
   POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-stage2 \
   bash tests/conductor-live.sh
 ```
+
+## ARLM Stage 3 Checkpoint 1
+
+Ran on Linux, Node 24.22.3, Python 3.12.14, PyTorch 2.6.0+cpu,
+llama-cpp-python 0.3.36, and the existing Docker execution worker.
+Logs and sample artifacts are in `/workspace/scratch/pop-arlm-stage3-cp1`.
+
+| Exact command from the repository root | Actual result |
+| --- | --- |
+| `PYTHONDONTWRITEBYTECODE=1 POP_STAGE3_FOUNDRY=/workspace/scratch/pop-foundry-evidence/contract-ojszyxuu/foundry POP_STAGE3_EVIDENCE=/workspace/scratch/pop-arlm-stage3-cp1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_adapter_contract.py` | 3 passed in 5.197 s. Schema, independent evaluator binding, fresh-process inference without an evaluator file, 24 remapped permutations, forced ranking and citation ties, independent three-class decision output, real retrieval/composer calls, frozen parameters, and family-wise partitioning. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_contact_contract.py` | 1 passed in 33.257 s. Existing Stage 1 contact, export, and verified lineage. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_positional_meaning.py` | 1 passed in 40.983 s. Existing contextual interpretation, corruption rejection, restart, and rollback. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/model_maker_contract.py` | 1 passed in 38.880 s. Existing training loss pairs 5.6760 → 3.5658 and 3.5658 → 1.9150. |
+| `npm test && bash tests/address-cli.sh` | Three POP tests and separate-process address CLI passed. |
+| `/tmp/pop-python/bin/python tests/conductor_components.py` | Passed with the real Docker worker. |
+| `/tmp/pop-python/bin/python tests/automind_interpreter_smoke.py` | Passed with the original interpreter. |
+
+The frozen preview test uses existing Foundry revision
+`revision-7591e3fa723b4ef2b809ba2c7e8abc0b`, weights SHA-256
+`940a0af2311eaa78b715bcd070249ec0678eae35a44358be17252b04cf20be14`.
+The model's prior training qualification is for the code head. The research
+head is exercised as an experimental computational path. The test loads
+the same weights into the baseline source from Git and the updated source.
+Logits and router outputs are bitwise equal in all 16 legacy combinations.
+All 123 state tensors are byte-identical after preview, and every original
+parameter is frozen. The research head received 12 and 14 retrieval chunks
+including eight Klein chunks, and the original relation composer ran six
+times. The only trainable parameters belong to the new adapter. The
+checkpoint did not train any Stage 3 parameters. Earlier acceptance tests
+ran their existing training regressions.
+
+The two bank contexts exposed identical evidence and candidate concepts.
+The fixture supplied unequal evidence counts of 2 and 7, with one
+candidate dropping 3 rows at the four-row boundary. Randomly reassigning
+opaque candidate IDs and shuffling candidate and evidence order preserved
+scores, mapped ranks, cited and dropped references, and decisions. Forced
+ties preserved joint rank 1. Changing only the decision head exercised all
+three proposed decision values at identical tied ranks. Proposals remained
+unqualified and the operational preview abstained. The strict schemas
+rejected injected nested gold labels and receipts. The preview process ran
+before the private evaluator artifact existed.
+
+Sample SHA-256 digests:
+
+| File | SHA-256 |
+| --- | --- |
+| `inference.json` | `721a942dc961426303d52766a796c8d7209a8b9974ace98a1b640f070275097c` |
+| `evaluation.json` | `fb3fcb22cfbb6c44e4a903d8d810651b958e65ffcf60ea7b091e867d86473157` |
+| `preview.json` | `b000c807c267edd7c427588f7722249330b2aa6d9b21d48e21c3e9ddcaeac078` |
+| `tests/fixtures/arlm_stage3/preregistration.json` | `f1fdb3b06f92aa49c04ac26ceefb42e475badc0dabdf50f76c0eca72fbacd1fa` |
+
+The synthetic split contract assigned 100 groups reproducibly when input
+order was reversed, including transitive links across source and template.
+The fixture smoke family does not count toward qualification. The independent
+test count is 0 of 600. The preregistered sample gates are preserved.
+
+An initial run found that byte comparison needed to flatten scalar tensors
+before reinterpreting their dtype. The corrected contracts passed. The runtime
+emitted a PyTorch optional NumPy warning. The tests used no NumPy requirement.
+The standalone rebuild of the interpreter image was skipped. The original
+interpreter, Docker components, and live Docker mission all ran.
+
+The following shell prefix was used for both local Qwen commands, with output
+redirected to the evidence directory:
+
+```sh
+env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
+  PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+  POP_MODEL_BACKEND=local POP_PYTHON=/tmp/pop-python/bin/python \
+  POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+  POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+  POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+  POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-stage3-cp1 \
+  /tmp/pop-python/bin/python tests/local_model_contract.py
+
+env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
+  PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+  POP_MODEL_BACKEND=local POP_PYTHON=/tmp/pop-python/bin/python \
+  POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+  POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+  POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+  POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-stage3-cp1 \
+  bash tests/conductor-live.sh
+```
+
+The GGUF contract passed all four checks in 32.149 s. The live mission
+observed a real `NameError`, corrected itself, produced gate 42 in both draft
+and continuation, and matched the fresh status process. The mission
+checkpoint is `run.PYYGU0/mission.json` under the evidence directory, SHA-256
+`5a7ef0a64c356538e7e9c77247fbf019a3aebee6fd4aff0a24a7bcb7871b441d`.

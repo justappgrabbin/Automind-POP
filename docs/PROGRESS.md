@@ -107,3 +107,15 @@ The next action is a Stage 3 architectural review for direct neural conditioning
 on semantic addresses and perspective transformations, with independently
 defined holdout tasks and model revision qualification. Stage 3 requires
 separate approval.
+
+## ARLM Stage 3 Checkpoint 1
+
+Implemented the outcome-blind artifact builder, private evaluator schema,
+frozen checkpoint preview, permutation controls, and independent evaluation
+preregistration against `6faf759a95fbb698f7a2097d1d03f5cd452517f2`.
+The adapter has no operational qualification. Its preview leaves the ARLM
+activation journal untouched.
+
+The next action is to review the evidence and obtain separate approval before
+training, qualification, or activation. Independent dataset intake and the
+pretraining corpus audit remain open.
