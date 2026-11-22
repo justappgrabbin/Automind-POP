@@ -82,7 +82,7 @@ def partition_families(rows, salt):
     return assignment
 
 
-def coverage(cases, assignments, protocol):
+def coverage(cases, assignments, protocol, *, components=None):
     primary = {}
     runs = {condition: 0 for condition in CONDITIONS}
     paired = set()
@@ -90,10 +90,13 @@ def coverage(cases, assignments, protocol):
         if not case["independent"] or assignments[case["family"]] != "test":
             continue
         family = case["family"]
-        primary[family] = case["primaryCondition"]
+        component = components[family] if components is not None else family
+        condition = case["primaryCondition"]
+        if primary.setdefault(component, condition) != condition:
+            raise ValueError("Connected evaluation family has conflicting primary conditions")
         runs[case["condition"]] += 1
         if case["pairVerified"]:
-            paired.add(family)
+            paired.add(component)
     families = {condition: sum(value == condition for value in primary.values()) for condition in CONDITIONS}
     limits = protocol["counts"]
     shortfall = max(0, limits["minimumIndependentTestFamilies"] - len(primary))

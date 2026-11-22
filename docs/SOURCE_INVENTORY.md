@@ -107,6 +107,9 @@ boundary while retaining all thirteen fields privately.
 
 ## ARLM Stage 3 Checkpoint 2
 
+The earlier remote metadata-only checkpoint at `8aaebc1` is retained in Git
+history. Its lineage manifest and eight original checks are integrated here.
+
 - `arlm_dataset.py` reuses verified Stage 1 encounters, Stage 2 source-linked
   graph assertions, and the preregistered connected-family partitioner.
 - `arlm_leakage_audit.py` examines the materialized retrieval trace and

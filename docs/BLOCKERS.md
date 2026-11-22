@@ -65,6 +65,9 @@ Training, qualification and activation require approval after Checkpoint 1.
 
 ## ARLM Stage 3 Checkpoint 2 limits
 
+The earlier remote metadata-only checkpoint at `8aaebc1` is retained in Git
+history. Its lineage manifest and eight original checks are integrated here.
+
 - Independent qualification coverage remains 0 of 600 families, with 0 of 75
   in each primary condition. The bank and empty-readiness fixtures count only
   as engineering checks. The five training seeds remain preregistered.

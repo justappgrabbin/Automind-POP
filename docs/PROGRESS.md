@@ -122,6 +122,9 @@ pretraining corpus audit remain open.
 
 ## ARLM Stage 3 Checkpoint 2
 
+The earlier remote metadata-only checkpoint at `8aaebc1` is retained in Git
+history. Its lineage manifest and eight original checks are integrated here.
+
 Implemented verified-ledger dataset materialization, private target and
 address views, correction approval, lineage and retrieval audits, and the
 v2 frozen preview. The preregistration file was preserved byte for byte.

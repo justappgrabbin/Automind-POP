@@ -353,6 +353,9 @@ checkpoint is `run.PYYGU0/mission.json` under the evidence directory, SHA-256
 
 ## ARLM Stage 3 Checkpoint 2
 
+The earlier remote metadata-only checkpoint at `8aaebc1` is retained in Git
+history. Its lineage manifest and eight original checks are integrated here.
+
 Baseline `0dbae1b2edbc573bca27d4d2632e7faffc3ea458`. Tests ran on Linux,
 Node 24.22.3, Python 3.12.14, CPU PyTorch 2.6.0+cpu, the existing Docker
 worker, and llama-cpp-python 0.3.36. Logs and the readiness report are in
@@ -374,11 +377,11 @@ done
 
 | Contract | Result |
 | --- | --- |
-| Dataset | 1 passed. Rebuilt a real ledger-linked intake in shuffled order, kept the ledger unchanged, rejected source and evaluator tampering and derivation cycles, and required exact correction approval for a training target. |
+| Dataset | 9 passed, including eight inherited metadata-manifest checks. Rebuilt a real ledger-linked intake in shuffled order, kept the ledger unchanged, rejected source and evaluator tampering and derivation cycles, and required exact correction approval for a training target. |
 | Leakage | 1 passed. Detected planted shared sources, evaluator-source exposure, derived ancestry, shared assertions, close text variants, altered materialized retrieval, and injected gold fields or outcome relations. |
 | Perspective and address | 1 passed. Reused real POP positions and the Stage 2 transformation. Equivalent times produced identical artifacts and frozen predictions. Research-head hooks observed frame, transformation, and address chunks and the expected removals during ablations. Conflicting or missing candidate fields were masked consistently. The thirteen-field audit records retained unresolved values, and the predictor validator rejected private fields. Alternate-provider disagreement was a contract fixture. |
 | Checkpoint 1 adapter | 3 passed. Preserved 16 legacy bitwise logit/router comparisons, 123 frozen state tensors, and 24 remapped permutations. The fresh prediction process accessed no evaluator file. |
-| Readiness | Passed engineering audit with 0 of 600 independent test families, 0 of 75 per condition, and a false readiness status. Report SHA-256 `e4d5dd744a890b1089290ddd9115f8b8a2dc13b413ea18d471a73d617b50d459`. |
+| Readiness | Passed engineering audit with 0 of 600 independent test families, 0 of 75 per condition, and a false readiness status. Report SHA-256 `94ee76794cf389d14346c1b0f6b2b4dd6cd658fc4b25a382965cbff0426195b4`. |
 
 The first perspective run exposed a shared mutable address dictionary
 between records resolved from the same coordinates. Each record now holds
