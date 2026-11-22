@@ -260,3 +260,7 @@ env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
   POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-stage2 \
   bash tests/conductor-live.sh
 ```
+
+## ARLM Stage 2 neural replay regression (pending execution)
+
+Added a second independent `interpretation-artifacts` subprocess invocation in `tests/arlm_positional_meaning.py` after the existing fresh-process semantic replay. Assertions compare the saved river input, `features` matrix, and `logitSha256`, then verify that interpretation history is unchanged. Required command: `PYTHONDONTWRITEBYTECODE=1 python tests/arlm_positional_meaning.py` in the existing TRIDENT environment. **Not run in this continuation:** the connected GitHub interface supports repository reads/writes but no repository runtime, and the local container could not resolve github.com to clone the repository. The earlier Stage 2 passing report does not establish a pass for this newly added assertion.

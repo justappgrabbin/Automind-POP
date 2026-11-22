@@ -132,6 +132,15 @@ class PositionalMeaning(unittest.TestCase):
         self.assertEqual(river, run(*cli, "interpret", encounter_id, evidence["revision"],
                                     write("frame.json", replay_request)))
         self.assertEqual(history, run(*cli, "history"))
+        # A second independent CLI process must reproduce the neural artifact too,
+        # without publishing a new interpretation or changing active history.
+        river_reloaded = artifacts(river)
+        self.assertEqual(river_reloaded["tridentInput"], samples["river"]["tridentInput"])
+        self.assertEqual(river_reloaded["tridentComputation"]["features"],
+                         samples["river"]["tridentComputation"]["features"])
+        self.assertEqual(river_reloaded["tridentComputation"]["logitSha256"],
+                         samples["river"]["tridentComputation"]["logitSha256"])
+        self.assertEqual(run(*cli, "history"), history)
         run(*cli, "rollback", river["revision"])
         self.assertEqual(run(*cli, "show"), river)
         self.assertEqual(artifacts(river)["tridentInput"], samples["river"]["tridentInput"])

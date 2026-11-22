@@ -94,3 +94,7 @@ boundary while retaining all thirteen fields privately.
 | `src/runtime.mjs` and `vendor/synthai/services/address-service.mjs` | `arlm_address.mjs` runs the existing qualified YNIV route and canonical-spine verifier on evidence-supplied coordinates in temporary POP state. Mapping, routing and verification sources have distinct fingerprints. Other providers retain their own mappings; this adapter currently qualifies only YNIV. |
 | `src/arlm_state.py` and `src/arlm_contact.py` | Existing SQLite transaction and activation journal publish evidence, interpretation and attachments. Stage 2 bindings pin event, graph, address, perspective, model and input digests. The Stage 1 encounter, public slice and approval/export paths are reused. |
 | `vendor/trident/source/semantic_language_maker.py` and `model.py` | `arlm_trident_context.py` calls the donor encoder and real forward path on a pinned qualified checkpoint. The donor processes contextual triples through its existing feature and fusion path. The input artifact pins the full evidence and frame provenance. Learned perspective and address embeddings are a later contract. |
+
+## Stage 2 replay regression provenance
+
+`tests/arlm_positional_meaning.py` is the existing POP Experiment 1 test, extended on `automation/arlm-stage2-replay-regression` to compare `src/arlm_trident_context.py` output across two independent CLI invocations. The production implementation and pinned TRIDENT donor source are unchanged by this follow-up.

@@ -107,3 +107,7 @@ The next action is a Stage 3 architectural review for direct neural conditioning
 on semantic addresses and perspective transformations, with independently
 defined holdout tasks and model revision qualification. Stage 3 requires
 separate approval.
+
+## ARLM Stage 2 replay regression follow-up
+
+On branch `automation/arlm-stage2-replay-regression`, the Experiment 1 contract now reopens the river interpretation in a separate CLI process and checks that the full TRIDENT input, encoded features, and forward-logit digest are unchanged and that history has not grown. This extends the earlier semantic replay assertion to neural computation replay. The change is a test-only hardening step, not Stage 3 conditioning or model promotion. Execution against the full TRIDENT environment remains pending.
