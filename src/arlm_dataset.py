@@ -87,7 +87,7 @@ def build_manifest(rows, salt):
     return {"schemaVersion": 1, "policy": "lineage-closure-v1", "saltDigest": digest(salt),
             "sourceDigest": digest(normalized), "partitions": partition_digests,
             "assignments": dict(sorted(assignments.items())),
-            "independentFamilies": {split: sum(v == split for v in assignments.values())
+            "independentFamilies": {split: sum(assignments[members[0]] == split for members in components.values())
                                     for split in SPLITS},
             "conditionRuns": {split: sum(assignments[row["family"]] == split for row in normalized)
                               for split in SPLITS},
