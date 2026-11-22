@@ -350,3 +350,7 @@ observed a real `NameError`, corrected itself, produced gate 42 in both draft
 and continuation, and matched the fresh status process. The mission
 checkpoint is `run.PYYGU0/mission.json` under the evidence directory, SHA-256
 `5a7ef0a64c356538e7e9c77247fbf019a3aebee6fd4aff0a24a7bcb7871b441d`.
+
+
+## Stage 3 Checkpoint 2 update
+Checkpoint 2 (2026-11-22): test command prepared: python -m unittest discover -s tests -p 'arlm_dataset_contract.py' -v. NOT EXECUTED: container git clone failed with 'Could not resolve host: github.com'; GitHub connector can commit source but cannot execute Python. No passing result, partition digest, or leakage audit receipt is claimed. Existing TRIDENT regression also not rerun.
