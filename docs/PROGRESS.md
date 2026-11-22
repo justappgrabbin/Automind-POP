@@ -119,3 +119,7 @@ activation journal untouched.
 The next action is to review the evidence and obtain separate approval before
 training, qualification, or activation. Independent dataset intake and the
 pretraining corpus audit remain open.
+
+
+## Stage 3 Checkpoint 2 update
+Checkpoint 2 partial implementation (2026-11-22): added src/arlm_dataset.py with deterministic lineage closure, quarantine on incomplete metadata, partition digests, and connected-component counts; tests/arlm_dataset_contract.py contains eight executable checks. No training or adapter activation. Not a completed checkpoint.
