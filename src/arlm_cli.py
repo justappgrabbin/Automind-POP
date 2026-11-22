@@ -7,6 +7,7 @@ import sys
 from contextlib import closing
 from pathlib import Path
 
+from arlm_dataset import build_dataset
 from arlm_contact import approve, export_rows, initialize, public_view, record
 from arlm_inference import build_inference
 from arlm_interpretation import index_evidence, interpret
@@ -34,6 +35,10 @@ def main():
     inference.add_argument("encounter", type=int)
     inference.add_argument("evidence", type=int)
     inference.add_argument("request", type=Path)
+    dataset = commands.add_parser("dataset-build")
+    dataset.add_argument("inventory", type=Path)
+    dataset.add_argument("labels", type=Path)
+    dataset.add_argument("--view", choices=("report", "inference", "training", "private-addresses"), default="report")
     approval = commands.add_parser("approve")
     approval.add_argument("encounter")
     approval.add_argument("approver")
@@ -56,6 +61,17 @@ def main():
                 result = index_evidence(store, args.encounter, json.loads(args.request.read_text()))
             elif args.action == "inference-artifact":
                 result = build_inference(store, args.encounter, args.evidence, json.loads(args.request.read_text()))
+            elif args.action == "dataset-build":
+                result = build_dataset(store, json.loads(args.inventory.read_text()), json.loads(args.labels.read_text()))
+                if args.view == "report":
+                    for key in ("inference", "trainingTargets", "privateAddressEvidence"):
+                        result.pop(key)
+                else:
+                    if not result["audit"]["passed"]:
+                        raise ValueError("Dataset audit failed; inspect the report view")
+                    field = {"inference": "inference", "training": "trainingTargets",
+                             "private-addresses": "privateAddressEvidence"}[args.view]
+                    result = result[field]
             elif args.action == "interpret":
                 result = interpret(store, args.encounter, args.evidence, json.loads(args.request.read_text()))
             elif args.action == "interpretation-artifacts":

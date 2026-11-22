@@ -7,6 +7,7 @@ from pathlib import Path
 import torch
 from torch import nn
 
+from arlm_address_evidence import address_contract
 from arlm_inference import DIMENSIONS, evidence_content, validate_inference
 from arlm_perspective import FRAME_FIELDS
 from model_maker import donor_runtime
@@ -28,13 +29,15 @@ class InterpretationAdapter(nn.Module):
         self.citation_score = nn.Bilinear(width, rag, 1)
         self.rank_score = nn.Linear(width + 2, 1)
         self.decision_score = nn.Linear(width * 2 + 1, len(DECISIONS))
+        self.transformation_projection = nn.Linear(len(FRAME_FIELDS) + 3 + len(DIMENSIONS), rag)
+        self.address_projection = nn.Linear(width * 2, rag)
 
     def train(self, mode=True):
         super().train(mode)
         self.model.eval()
         return self
 
-    def forward(self, artifact):
+    def forward(self, artifact, *, include_perspective=True):
         validate_inference(artifact)
         from source.semantic_language_maker import BOS, ByteCodec, semantic_features
 
@@ -54,6 +57,8 @@ class InterpretationAdapter(nn.Module):
             [observation["proportions"][key] for key in dimensions]
             + [float(key == observation["clarity"]) for key in dimensions]
         ))
+        transform_chunk, addresses = self.conditioning_chunks(artifact, weights, dimensions)
+        perspective_chunks = [frame_chunk, observation_chunk, *transform_chunk] if include_perspective else []
         outcomes, representations = [], []
         for candidate in sorted(artifact["candidates"], key=lambda item: item["concept"]):
             admitted, dropped = retrieve(candidate)
@@ -63,7 +68,13 @@ class InterpretationAdapter(nn.Module):
             evidence_chunks = [self.evidence_projection(torch.cat([
                 self.model.word_embedding(value) for value in (*evidence_content(row).values(), concept)
             ])) for row in admitted]
-            chunks = torch.stack([frame_chunk, observation_chunk, *evidence_chunks])[None]
+            address_chunks = [self.address_projection(torch.cat([
+                self.model.word_embedding(record["field"]),
+                self.model.word_embedding(str(record["value"])),
+            ])) for record in addresses.get(candidate["id"], ())]
+            chunks = torch.stack([
+                *perspective_chunks, *address_chunks, *evidence_chunks,
+            ])[None]
             klein = semantic_features(expression, relations=relations)[None].to(weights)
             representation = self.model(ids, head="research", rag=chunks, klein=klein,
                                         return_representations=True)[0, -1]
@@ -86,6 +97,21 @@ class InterpretationAdapter(nn.Module):
         else:
             summary = weights.new_zeros(self.model.cfg.d_model * 2 + 1)
         return outcomes, self.decision_score(summary)
+
+
+    def conditioning_chunks(self, artifact, weights, dimensions):
+        if artifact["schemaVersion"] == 1:
+            return [], {}
+        conditioning = artifact["conditioning"]
+        trace = conditioning["transformation"]
+        chunks = []
+        if trace:
+            features = [float(key in trace["changedFields"]) for key in FRAME_FIELDS]
+            features += [float(key in trace["observationChanges"]) for key in ("expressions", "weights", "clarify")]
+            features += [trace["suppressedProportions"].get(key, 0) for key in dimensions]
+            chunks.append(self.transformation_projection(weights.new_tensor(features)))
+        return chunks, address_contract(artifact["candidates"], conditioning["addresses"],
+                                        conditioning["mappings"], conditioning["addressMode"])
 
 
 def preview(adapter, artifact):

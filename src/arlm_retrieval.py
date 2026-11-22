@@ -11,3 +11,10 @@ def retrieve(candidate):
         encode(evidence_content(row)), row["source"], row["sourceRevision"], row["ref"],
     ))
     return ordered[:BUDGET], ordered[BUDGET:]
+
+
+def retrieval_snapshot(artifact):
+    return {
+        item["concept"]: [[row["ref"] for row in group] for group in retrieve(item)]
+        for item in sorted(artifact["candidates"], key=lambda candidate: candidate["concept"])
+    }

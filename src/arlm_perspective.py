@@ -93,3 +93,30 @@ def transform(prior, current):
         },
         "informationLoss": current["informationLoss"],
     }
+
+
+def transformation_input(store, previous_id, current_id, encounter_id, observed):
+    """Read the verified Stage 2 path and project only frame facts."""
+    import json
+
+    previous, current = (store.revision(revision) for revision in (previous_id, current_id))
+    for entry in (previous, current):
+        store.validate(entry)
+        event = entry["event"]
+        if event["type"] != "arlm-interpretation" or event["encounterRevision"] != encounter_id:
+            raise ValueError("Transformation must belong to the same verified encounter")
+    saved = current["event"]["transformation"]
+    if not saved or saved["fromRevision"] != previous_id:
+        raise ValueError("Missing recorded perspective transformation")
+    a, b = (json.loads(store.read(entry["manifest"]["components"]["P"]))
+            for entry in (previous, current))
+    recomputed = transform(a, b)
+    if b["id"] != observed["id"] or any(saved[key] != value for key, value in recomputed.items()):
+        raise ValueError("Perspective transformation trace mismatch")
+    return {
+        "operator": recomputed["operator"],
+        "changedFields": sorted(recomputed["changes"]),
+        "invariantFields": sorted(recomputed["invariants"]),
+        "observationChanges": sorted(recomputed["observationChanges"]),
+        "suppressedProportions": recomputed["informationLoss"]["suppressedProportions"],
+    }

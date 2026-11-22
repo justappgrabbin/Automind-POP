@@ -350,3 +350,66 @@ observed a real `NameError`, corrected itself, produced gate 42 in both draft
 and continuation, and matched the fresh status process. The mission
 checkpoint is `run.PYYGU0/mission.json` under the evidence directory, SHA-256
 `5a7ef0a64c356538e7e9c77247fbf019a3aebee6fd4aff0a24a7bcb7871b441d`.
+
+## ARLM Stage 3 Checkpoint 2
+
+Baseline `0dbae1b2edbc573bca27d4d2632e7faffc3ea458`. Tests ran on Linux,
+Node 24.22.3, Python 3.12.14, CPU PyTorch 2.6.0+cpu, the existing Docker
+worker, and llama-cpp-python 0.3.36. Logs and the readiness report are in
+`/workspace/scratch/pop-arlm-cp2`.
+
+```sh
+P=/workspace/scratch/pop-arlm-cp2
+PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python src/arlm_cli.py \
+  "$P/readiness.sqlite" dataset-build \
+  tests/fixtures/arlm_stage3/checkpoint2/empty-inventory.json \
+  tests/fixtures/arlm_stage3/checkpoint2/empty-labels.json > "$P/readiness.json"
+
+for t in arlm_dataset_contract arlm_leakage_contract arlm_perspective_inputs arlm_adapter_contract; do
+  PYTHONDONTWRITEBYTECODE=1 \
+    POP_STAGE3_FOUNDRY=/workspace/scratch/pop-foundry-evidence/contract-ojszyxuu/foundry \
+    /tmp/pop-trident-probe-venv/bin/python "tests/$t.py" > "$P/$t.log" 2>&1 || exit
+done
+```
+
+| Contract | Result |
+| --- | --- |
+| Dataset | 1 passed. Rebuilt a real ledger-linked intake in shuffled order, kept the ledger unchanged, rejected source and evaluator tampering and derivation cycles, and required exact correction approval for a training target. |
+| Leakage | 1 passed. Detected planted shared sources, evaluator-source exposure, derived ancestry, shared assertions, close text variants, altered materialized retrieval, and injected gold fields or outcome relations. |
+| Perspective and address | 1 passed. Reused real POP positions and the Stage 2 transformation. Equivalent times produced identical artifacts and frozen predictions. Research-head hooks observed frame, transformation, and address chunks and the expected removals during ablations. Conflicting or missing candidate fields were masked consistently. The thirteen-field audit records retained unresolved values, and the predictor validator rejected private fields. Alternate-provider disagreement was a contract fixture. |
+| Checkpoint 1 adapter | 3 passed. Preserved 16 legacy bitwise logit/router comparisons, 123 frozen state tensors, and 24 remapped permutations. The fresh prediction process accessed no evaluator file. |
+| Readiness | Passed engineering audit with 0 of 600 independent test families, 0 of 75 per condition, and a false readiness status. Report SHA-256 `e4d5dd744a890b1089290ddd9115f8b8a2dc13b413ea18d471a73d617b50d459`. |
+
+The first perspective run exposed a shared mutable address dictionary
+between records resolved from the same coordinates. Each record now holds
+its own field dictionary. An intermediate leakage test had a syntax error,
+corrected before the passing run. No Stage 3 parameters were trained.
+
+| Other exact regression commands | Result |
+| --- | --- |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_contact_contract.py` | 1 passed in 38.396 s. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/arlm_positional_meaning.py` | 1 passed in 45.442 s. |
+| `PYTHONDONTWRITEBYTECODE=1 /tmp/pop-trident-probe-venv/bin/python tests/model_maker_contract.py` | 1 passed in 41.589 s. Ordinary Model Maker training regression only. |
+| `npm test && bash tests/address-cli.sh` | 3 passed, plus separate-process address CLI. |
+| `/tmp/pop-python/bin/python tests/conductor_components.py` | Passed with Docker. |
+| `/tmp/pop-python/bin/python tests/automind_interpreter_smoke.py` | Passed with the original interpreter. The standalone image rebuild was skipped. |
+
+The Qwen GGUF contract passed all 4 checks in 35.841 s. The live mission
+passed worker failure, correction, verification, and restart. The mission
+is `run.jYUr3J/mission.json` under the evidence directory, SHA-256
+`8504ec589af946bcfa57150156a4eb5ae1182db096189b05163a0ed7b73142f5`.
+Both commands used the following exact runtime settings.
+
+```sh
+qwen() {
+  env -u OPENAI_API_KEY -u OPENAI_BASE_URL \
+    PYTHONPATH=/tmp/pop-local-wheel36 PYTHONDONTWRITEBYTECODE=1 \
+    POP_MODEL_BACKEND=local POP_PYTHON=/tmp/pop-python/bin/python \
+    POP_MODEL=Qwen2.5-Coder-3B-Instruct-Q4_K_M \
+    POP_GGUF=/workspace/scratch/pop-models/qwen2.5-coder-3b-q4_k_m.gguf \
+    POP_GGUF_SHA256=724fb256bec1ff062b2f65e4569e871ad2e95ab2a3989723d1769c54294730b7 \
+    POP_MODEL_THREADS=2 POP_EVIDENCE_DIR=/workspace/scratch/pop-arlm-cp2 "$@"
+}
+qwen /tmp/pop-python/bin/python tests/local_model_contract.py
+qwen bash tests/conductor-live.sh
+```

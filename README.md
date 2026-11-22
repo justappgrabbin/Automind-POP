@@ -237,3 +237,25 @@ training or registration is needed for the preview.
 The independent evaluation protocol is pinned in
 `tests/fixtures/arlm_stage3/preregistration.json`. See
 `docs/TEST_EVIDENCE.md` for the executable acceptance and sample outputs.
+
+### Stage 3 Checkpoint 2 · Dataset readiness
+
+```sh
+python src/arlm_cli.py .pop/arlm.sqlite dataset-build inventory.json private-labels.json
+```
+
+The operator-side command checks content digests, verified ledger revisions,
+independent evaluator records, interpretation-specific approvals, derivation
+lineage, and leakage evidence. Its default view returns an audit and readiness
+report. Request the `inference`, `training`, or `private-addresses` view separately
+with `--view`. Give the predictor only its inference artifact. Keep the label
+file, private address view, and training targets under separate operator
+access. The existing preview command consumes one inference artifact.
+
+The inventory contains `sources` and `cases`. Each case pins a verified
+encounter, an evidence revision, a perspective request, lineage selectors,
+case classification, and derived parents. Label histories are keyed by case
+and bind to the exact inference digest. A correction supersedes the preceding
+label digest and needs a new interpretation-training approval. This route only
+prepares data. The preregistered family, condition, and seed requirements still
+govern any future qualification.

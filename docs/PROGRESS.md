@@ -119,3 +119,14 @@ activation journal untouched.
 The next action is to review the evidence and obtain separate approval before
 training, qualification, or activation. Independent dataset intake and the
 pretraining corpus audit remain open.
+
+## ARLM Stage 3 Checkpoint 2
+
+Implemented verified-ledger dataset materialization, private target and
+address views, correction approval, lineage and retrieval audits, and the
+v2 frozen preview. The preregistration file was preserved byte for byte.
+The readiness fixture reports zero independent qualification families.
+
+Next action is independent source and evaluator intake against the frozen
+protocol. Neural training, qualification, and activation require separate
+approval. See the Checkpoint 2 test evidence and blockers.

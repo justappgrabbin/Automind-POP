@@ -80,3 +80,27 @@ def partition_families(rows, salt):
         split = "train" if bucket < 60 else "validation" if bucket < 80 else "test"
         assignment.update(dict.fromkeys(group, split))
     return assignment
+
+
+def coverage(cases, assignments, protocol):
+    primary = {}
+    runs = {condition: 0 for condition in CONDITIONS}
+    paired = set()
+    for case in cases.values():
+        if not case["independent"] or assignments[case["family"]] != "test":
+            continue
+        family = case["family"]
+        primary[family] = case["primaryCondition"]
+        runs[case["condition"]] += 1
+        if case["pairVerified"]:
+            paired.add(family)
+    families = {condition: sum(value == condition for value in primary.values()) for condition in CONDITIONS}
+    limits = protocol["counts"]
+    shortfall = max(0, limits["minimumIndependentTestFamilies"] - len(primary))
+    by_condition = {key: max(0, limits["minimumIndependentTestFamiliesPerPrimaryCondition"] - count)
+                    for key, count in families.items()}
+    return {"independentTestFamilies": len(primary), "familiesByPrimaryCondition": families,
+            "conditionRuns": runs, "independentlyLabeledPairedFamilies": len(paired),
+            "shortfall": shortfall, "shortfallByCondition": by_condition,
+            "coverageMet": not shortfall and not any(by_condition.values()),
+            "requiredSeeds": protocol["requiredSeeds"]}

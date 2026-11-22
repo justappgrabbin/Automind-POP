@@ -62,3 +62,19 @@ source or template leakage inside natural-language content.
 The preview ranking, cited rows, and separate proposed decision are
 unvalidated neural outputs. The operational decision remains unresolved.
 Training, qualification and activation require approval after Checkpoint 1.
+
+## ARLM Stage 3 Checkpoint 2 limits
+
+- Independent qualification coverage remains 0 of 600 families, with 0 of 75
+  in each primary condition. The bank and empty-readiness fixtures count only
+  as engineering checks. The five training seeds remain preregistered.
+- Independent reviewer identity, permissions, and semantic paraphrase review
+  must be established by the dataset operator. The audit verifies declared
+  content and lineage digests and detects exact and close text overlaps.
+  Source contents still need human review for disguised target leakage.
+- Live address intake currently supports YNIV. Tests preserve and mask
+  conflicting provider records. Additional live provider mappings and
+  permissioned use of fields beyond Base need their own eligibility review.
+- The frozen preview verifies feature flow and equivalent-input behavior.
+  Learned ranking quality, calibration, and verification after neural
+  adaptation remain open and require separate approval.

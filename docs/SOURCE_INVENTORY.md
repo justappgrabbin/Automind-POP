@@ -104,3 +104,19 @@ boundary while retaining all thirteen fields privately.
 | TRIDENT `source/model.py` and `source/semantic_language_maker.py` | A small optional hidden-representation return path reuses the original research head and retrieval fusion. The frozen adapter also uses the original eight Klein feature channels and bilinear relation composer. |
 | Existing Foundry registry | The preview verifies the registered parent checkpoint and records its identity and digests. The experimental research-head path carries its own unqualified status. |
 | Independent Stage 2 fixture oracle | A smoke-only private evaluation artifact references the oracle digest. `arlm_evaluation.py` validates the reference binding and implements family disjoint partitioning. |
+
+## ARLM Stage 3 Checkpoint 2
+
+- `arlm_dataset.py` reuses verified Stage 1 encounters, Stage 2 source-linked
+  graph assertions, and the preregistered connected-family partitioner.
+- `arlm_leakage_audit.py` examines the materialized retrieval trace and
+  cross-split expression, source, assertion, and derivation lineage.
+- `arlm_address_evidence.py` uses the existing POP YNIV resolver and its
+  receipt and mapping fingerprints. The private address view retains all
+  thirteen fields. Predictor views redact fields after Base and apply a
+  symmetric mask where coverage or provider agreement is missing.
+- `arlm_training_data.py` validates private evaluator bindings, correction
+  history, and exact interpretation-specific approvals. It prepares targets.
+- The optional v2 predictor path projects recorded Biverse transformation and
+  eligible address facts through the existing TRIDENT research-head retrieval
+  interface. The donor architecture, checkpoints and v1 behavior are preserved.
