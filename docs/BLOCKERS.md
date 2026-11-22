@@ -62,3 +62,7 @@ source or template leakage inside natural-language content.
 The preview ranking, cited rows, and separate proposed decision are
 unvalidated neural outputs. The operational decision remains unresolved.
 Training, qualification and activation require approval after Checkpoint 1.
+
+
+## Stage 3 Checkpoint 2 update
+Checkpoint 2 open: local container cannot resolve github.com for checkout; tests not executed. Dataset intake is metadata-only and does not yet provide private-target binding, post-retrieval nested leakage audit, perspective RAG injection, provider-qualified addresses, correction approval export, or readiness qualification. Independent real case inventory is unavailable; synthetic fixtures do not count. Checkpoint remains incomplete.
