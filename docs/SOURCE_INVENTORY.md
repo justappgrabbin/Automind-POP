@@ -104,3 +104,7 @@ boundary while retaining all thirteen fields privately.
 | TRIDENT `source/model.py` and `source/semantic_language_maker.py` | A small optional hidden-representation return path reuses the original research head and retrieval fusion. The frozen adapter also uses the original eight Klein feature channels and bilinear relation composer. |
 | Existing Foundry registry | The preview verifies the registered parent checkpoint and records its identity and digests. The experimental research-head path carries its own unqualified status. |
 | Independent Stage 2 fixture oracle | A smoke-only private evaluation artifact references the oracle digest. `arlm_evaluation.py` validates the reference binding and implements family disjoint partitioning. |
+
+
+## Stage 3 Checkpoint 2 update
+Checkpoint 2 additions (2026-11-22): src/arlm_dataset.py (new deterministic metadata lineage/partition manifest) and tests/arlm_dataset_contract.py (new synthetic contract fixtures). Existing src/arlm_inference.py, src/arlm_evaluation.py, src/arlm_perspective.py, and frozen tests/fixtures/arlm_stage3/preregistration.json preserved unchanged. Dataset manifests are not yet produced from real source records.
