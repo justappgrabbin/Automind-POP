@@ -81,3 +81,7 @@ history. Its lineage manifest and eight original checks are integrated here.
 - The frozen preview verifies feature flow and equivalent-input behavior.
   Learned ranking quality, calibration, and verification after neural
   adaptation remain open and require separate approval.
+
+## 2026-11-23 verification environment
+
+The local execution container could not resolve `github.com`, so it could not clone the current integration branch to run the newly added ARLM condition-quarantine regression. GitHub's connected file reader/writer succeeded. The regression is committed but **unverified by execution**. Run it in a GitHub Actions runner or a network-enabled checkout before considering this guard accepted. This environment limitation does not authorize neural training, qualification, or activation.
