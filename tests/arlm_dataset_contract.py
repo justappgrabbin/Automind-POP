@@ -181,6 +181,10 @@ class LineageManifestContract(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_manifest([dict(row("a"), expectedDecision="resolved")], "frozen")
 
+    def test_unknown_condition_quarantined_before_partitioning(self):
+        with self.assertRaisesRegex(ValueError, "Unknown preregistered condition"):
+            build_manifest([row("a", condition="unregistered-condition")], "frozen")
+
     def test_source_change_changes_digest(self):
         original = row("a")
         changed = copy.deepcopy(original)
