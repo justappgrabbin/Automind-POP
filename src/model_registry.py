@@ -63,6 +63,13 @@ class ModelRegistry:
         if record["torch"] != version("torch"):
             raise ValueError("Checkpoint uses an incompatible PyTorch version")
         directory = self.artifacts(revision)
-        if any(digest(directory / name) != expected for name, expected in record["digests"].items()):
+        expected = record.get("digests")
+        required = {"config.json", "weights.pt"}
+        if not isinstance(expected, dict) or set(expected) != required or any(
+            not isinstance(expected[name], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", expected[name])
+            or digest(directory / name) != expected[name]
+            for name in required
+        ):
             raise ValueError("Checkpoint digest mismatch")
         return directory
