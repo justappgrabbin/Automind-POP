@@ -133,3 +133,7 @@ history. Its lineage manifest and eight original checks are integrated here.
 - `src/arlm_dataset.py` is the existing source-preserving Stage 3 partition manifest builder; it now rejects whitespace-ambiguous family and revision identifiers. The manifest retains the original condition and lineage-closure policy.
 - `tests/arlm_dataset_contract.py` contains the added identifier-quarantine regression.
 - `.github/workflows/arlm-lineage.yml` is a new minimal Python 3.11 contract runner on the integration branch. It executes the manifest-only tests without requiring a live ledger or model weights; its execution has not yet been observed.
+
+## 2026-11-23 — Verified lineage CI execution
+
+The original `src/arlm_dataset.py` lineage builder and `tests/arlm_dataset_contract.py` regression were exercised by `.github/workflows/arlm-lineage.yml` on GitHub-hosted Python 3.11. Workflow run 45278661391 (head `aeb75d8800be5cc6fa97da2285d4c606e37e1741`) completed successfully. This is an executed contract check, not new donor import or qualification evidence.
