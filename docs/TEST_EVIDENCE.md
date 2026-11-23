@@ -416,3 +416,7 @@ qwen() {
 qwen /tmp/pop-python/bin/python tests/local_model_contract.py
 qwen bash tests/conductor-live.sh
 ```
+
+## 2026-11-23 — ARLM metadata guard (execution pending)
+
+Reviewed live `src/arlm_dataset.py`, `src/arlm_evaluation.py`, and `tests/arlm_dataset_contract.py` on `integration/automind-conductor`. Added `test_unknown_condition_quarantined_before_partitioning` and a `CONDITIONS` whitelist in `build_manifest`. Intended regression command: `python -m unittest tests/arlm_dataset_contract.py` (with the repository's required fixture environment). **Not executed:** `git ls-remote https://github.com/justappgrabbin/Automind-POP.git HEAD` failed with `Could not resolve host: github.com` in the local execution container. No passing test claim is made for these commits.
