@@ -420,3 +420,7 @@ qwen bash tests/conductor-live.sh
 ## 2026-11-23 — ARLM metadata guard (execution pending)
 
 Reviewed live `src/arlm_dataset.py`, `src/arlm_evaluation.py`, and `tests/arlm_dataset_contract.py` on `integration/automind-conductor`. Added `test_unknown_condition_quarantined_before_partitioning` and a `CONDITIONS` whitelist in `build_manifest`. Intended regression command: `python -m unittest tests/arlm_dataset_contract.py` (with the repository's required fixture environment). **Not executed:** `git ls-remote https://github.com/justappgrabbin/Automind-POP.git HEAD` failed with `Could not resolve host: github.com` in the local execution container. No passing test claim is made for these commits.
+
+## 2026-11-23 — Identifier-quarantine regression (pending execution)
+
+Committed source guard and `test_ambiguous_identifier_whitespace_quarantined`. The intended command is `python -m unittest discover -s tests -p arlm_dataset_contract.py -k LineageManifestContract -v` (Python 3.11). `.github/workflows/arlm-lineage.yml` also compiles the ARLM modules. The local `git ls-remote https://github.com/justappgrabbin/Automind-POP.git HEAD` failed with `Could not resolve host: github.com`. The GitHub Actions runs endpoint did not show a run for the new workflow at inspection time. **No test pass is claimed.**
