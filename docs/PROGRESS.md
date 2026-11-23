@@ -133,3 +133,7 @@ The readiness fixture reports zero independent qualification families.
 Next action is independent source and evaluator intake against the frozen
 protocol. Neural training, qualification, and activation require separate
 approval. See the Checkpoint 2 test evidence and blockers.
+
+## 2026-11-23 — Checkpoint 2 intake hardening
+
+The independent `build_manifest` entry point now rejects condition labels absent from the frozen eight-condition protocol before split assignment. Added a regression case in `tests/arlm_dataset_contract.py`. The coverage report explicitly iterates all preregistered conditions. These changes are bounded preparatory engineering, not Stage 3 training, qualification, or activation. Tests have not been executed in this run because the local checkout could not reach GitHub; see `TEST_EVIDENCE.md`.
