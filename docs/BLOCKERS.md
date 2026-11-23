@@ -85,3 +85,7 @@ history. Its lineage manifest and eight original checks are integrated here.
 ## 2026-11-23 verification environment
 
 The local execution container could not resolve `github.com`, so it could not clone the current integration branch to run the newly added ARLM condition-quarantine regression. GitHub's connected file reader/writer succeeded. The regression is committed but **unverified by execution**. Run it in a GitHub Actions runner or a network-enabled checkout before considering this guard accepted. This environment limitation does not authorize neural training, qualification, or activation.
+
+## 2026-11-23 — CI execution outstanding
+
+The identifier-quarantine regression is committed but has not been executed. Local checkout DNS still fails. The new `.github/workflows/arlm-lineage.yml` is on the integration branch; the Actions runs API did not show its execution at inspection time. Verify that GitHub Actions permits the branch workflow and run its `LineageManifestContract` job before accepting the guard. Independent reviewer permissions and qualification cases remain outstanding; neural training, qualification, and activation are still outside the approved checkpoint.
