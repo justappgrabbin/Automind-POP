@@ -127,3 +127,9 @@ history. Its lineage manifest and eight original checks are integrated here.
 ## ARLM intake hardening — 2026-11-23
 
 `src/arlm_dataset.py` continues to use the original ledger-derived inference and the frozen `CONDITIONS` declared in `src/arlm_evaluation.py`. Its standalone lineage manifest now quarantines unknown condition names before partition assignment, matching the existing ledger-backed case validation. This is metadata validation only; no donor source or preregistration was modified.
+
+## 2026-11-23 lineage contract inventory
+
+- `src/arlm_dataset.py` is the existing source-preserving Stage 3 partition manifest builder; it now rejects whitespace-ambiguous family and revision identifiers. The manifest retains the original condition and lineage-closure policy.
+- `tests/arlm_dataset_contract.py` contains the added identifier-quarantine regression.
+- `.github/workflows/arlm-lineage.yml` is a new minimal Python 3.11 contract runner on the integration branch. It executes the manifest-only tests without requiring a live ledger or model weights; its execution has not yet been observed.
