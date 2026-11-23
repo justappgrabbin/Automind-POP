@@ -89,3 +89,7 @@ The local execution container could not resolve `github.com`, so it could not cl
 ## 2026-11-23 — CI execution outstanding
 
 The identifier-quarantine regression is committed but has not been executed. Local checkout DNS still fails. The new `.github/workflows/arlm-lineage.yml` is on the integration branch; the Actions runs API did not show its execution at inspection time. Verify that GitHub Actions permits the branch workflow and run its `LineageManifestContract` job before accepting the guard. Independent reviewer permissions and qualification cases remain outstanding; neural training, qualification, and activation are still outside the approved checkpoint.
+
+## 2026-11-23 — CI blocker resolved for manifest contracts
+
+GitHub-hosted [run 45278661391](https://github.com/justappgrabbin/Automind-POP/actions/runs/45278661391) succeeded on head `aeb75d8`, including the manifest contract test step. The earlier statement that this particular regression had not executed is superseded. The local container DNS limitation remains for *local* checkout, but is not a blocker to running this GitHub-hosted subset. Ledger-backed dataset contracts and full end-to-end conductor tests are not covered by this workflow. Independent source/evaluator permissions and 600 held-out families remain outstanding; neural training, qualification, and activation still require separate approval.
