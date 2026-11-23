@@ -185,6 +185,12 @@ class LineageManifestContract(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unknown preregistered condition"):
             build_manifest([row("a", condition="unregistered-condition")], "frozen")
 
+    def test_ambiguous_identifier_whitespace_quarantined(self):
+        for candidate in (row(" a"), row("a", revision="r1 "), row("a", revision=" r1")):
+            with self.subTest(candidate=candidate):
+                with self.assertRaises(ValueError):
+                    build_manifest([candidate], "frozen")
+
     def test_source_change_changes_digest(self):
         original = row("a")
         changed = copy.deepcopy(original)
