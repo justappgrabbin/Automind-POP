@@ -100,8 +100,10 @@ def coverage(cases, assignments, protocol, *, components=None):
     families = {condition: sum(value == condition for value in primary.values()) for condition in CONDITIONS}
     limits = protocol["counts"]
     shortfall = max(0, limits["minimumIndependentTestFamilies"] - len(primary))
-    by_condition = {key: max(0, limits["minimumIndependentTestFamiliesPerPrimaryCondition"] - count)
-                    for key, count in families.items()}
+    # Include every preregistered condition, including those with no test families.
+    # Missing conditions must never silently pass the readiness gate.
+    by_condition = {condition: max(0, limits["minimumIndependentTestFamiliesPerPrimaryCondition"] - families[condition])
+                    for condition in CONDITIONS}
     return {"independentTestFamilies": len(primary), "familiesByPrimaryCondition": families,
             "conditionRuns": runs, "independentlyLabeledPairedFamilies": len(paired),
             "shortfall": shortfall, "shortfallByCondition": by_condition,
