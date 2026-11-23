@@ -179,8 +179,8 @@ def build_manifest(rows, salt, *, bucket_digest=digest):
             parents[family] = family
         if not isinstance(row["revision"], str) or not row["revision"].strip():
             raise ValueError("Missing source revision")
-        if not isinstance(row["condition"], str) or not row["condition"].strip():
-            raise ValueError("Missing condition")
+        if row["condition"] not in CONDITIONS:
+            raise ValueError("Unknown preregistered condition; quarantine row")
         tokens = []
         for field in LINK_FIELDS[1:]:
             values = row[field] if isinstance(row[field], list) else [row[field]]
