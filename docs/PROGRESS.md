@@ -137,3 +137,7 @@ approval. See the Checkpoint 2 test evidence and blockers.
 ## 2026-11-23 — Checkpoint 2 intake hardening
 
 The independent `build_manifest` entry point now rejects condition labels absent from the frozen eight-condition protocol before split assignment. Added a regression case in `tests/arlm_dataset_contract.py`. The coverage report explicitly iterates all preregistered conditions. These changes are bounded preparatory engineering, not Stage 3 training, qualification, or activation. Tests have not been executed in this run because the local checkout could not reach GitHub; see `TEST_EVIDENCE.md`.
+
+## 2026-11-23 — Lineage identifier quarantine and CI runner
+
+Tightened `build_manifest` to reject family/revision identifiers with leading or trailing whitespace, preventing ambiguous partition keys. Added a regression covering three whitespace variants. Added `.github/workflows/arlm-lineage.yml` to compile ARLM modules and run `LineageManifestContract` on integration-branch pushes. A previous attempt to join cases on matching revision IDs was reverted before this checkpoint because fixture revisions can be reused across unrelated families. The final source preserves the existing partition semantics. No Stage 3 neural training or activation occurred. Execution is pending; see test evidence.
