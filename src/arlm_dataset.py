@@ -158,7 +158,6 @@ def build_manifest(rows, salt, *, bucket_digest=digest):
         raise TypeError("Dataset rows must be a list")
     parents = {}
     owners = {}
-    revision_owners = {}
     normalized = []
     seen = set()
 
@@ -174,11 +173,12 @@ def build_manifest(rows, salt, *, bucket_digest=digest):
         if any(key.lower().find(word) >= 0 for key in row for word in ("label", "answer", "target", "expected")):
             raise ValueError("Evaluation targets cannot enter predictor lineage")
         family = row["family"]
-        if not isinstance(family, str) or not family.strip():
+        if not isinstance(family, str) or not family.strip() or family != family.strip():
             raise ValueError("Invalid case family")
         if family not in parents:
             parents[family] = family
-        if not isinstance(row["revision"], str) or not row["revision"].strip():
+        if (not isinstance(row["revision"], str) or not row["revision"].strip()
+                or row["revision"] != row["revision"].strip()):
             raise ValueError("Missing source revision")
         if row["condition"] not in CONDITIONS:
             raise ValueError("Unknown preregistered condition; quarantine row")
@@ -192,11 +192,6 @@ def build_manifest(rows, salt, *, bucket_digest=digest):
         if identity in seen:
             raise ValueError("Duplicate source revision/condition")
         seen.add(identity)
-        # A revision identifier denotes one underlying source event. If it is
-        # reused across case families, keep both families in one partition.
-        prior_revision = revision_owners.setdefault(row["revision"], family)
-        a, b = sorted((root(prior_revision), root(family)))
-        parents[b] = a
         normalized.append({"family": family, "revision": row["revision"],
                            "condition": row["condition"], "tokens": sorted(set(tokens))})
         for token in tokens:
