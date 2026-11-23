@@ -9,11 +9,13 @@
 - Existing source archives and GitHub repositories are *donors*, not authority to replace AutoMind.
 - The previous `SynthAi` computer repository is reference material only; do not require migration into it.
 
-## Status
-Repository initialized with execution instructions. **No application source has been imported or verified here yet.** Do not report the computer complete until end-to-end tests prove it.
+## Status — integration branch
+The original AutoMind source has been imported under `vendor/automind` with provenance recorded in `docs/SOURCE_INVENTORY.md`. The existing engineering record in `docs/TEST_EVIDENCE.md` documents an original-agent Qwen local-model mission with real worker failure, correction, downstream CSV receipt, and restart persistence. TRIDENT Model Maker and ARLM Stage 1–3 experimental checkpoints are also documented in `docs/PROGRESS.md`.
+
+**These are recorded historical tests, not a claim that the full computer is finished or publicly deployed.** The ARLM Stage 3 neural qualification remains blocked on independent evaluation data and separate approval; see `docs/BLOCKERS.md`. For the next verified work item, consult `docs/PROGRESS.md` and rerun the relevant tests before claiming a new acceptance result.
 
 ## Next action for an autonomous coding agent
-Read `AGENTS.md` and `docs/INTEGRATION_PLAN.md`; retrieve the original AutoMind source, inventory it, and continue the source-preserving implementation on a development branch. Work through milestones without requesting approval for routine reversible steps. Record evidence in the repository.
+Read `AGENTS.md`, `docs/INTEGRATION_PLAN.md`, `docs/PROGRESS.md`, `docs/TEST_EVIDENCE.md`, and `docs/BLOCKERS.md`. Continue from the latest verified checkpoint on this integration branch. Preserve original source and previous results; do not restart the import or mistake the original scaffold status for the current implementation.
 
 ## Run the verified providers
 
