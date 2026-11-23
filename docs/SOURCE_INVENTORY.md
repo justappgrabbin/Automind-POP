@@ -123,3 +123,7 @@ history. Its lineage manifest and eight original checks are integrated here.
 - The optional v2 predictor path projects recorded Biverse transformation and
   eligible address facts through the existing TRIDENT research-head retrieval
   interface. The donor architecture, checkpoints and v1 behavior are preserved.
+
+## ARLM intake hardening — 2026-11-23
+
+`src/arlm_dataset.py` continues to use the original ledger-derived inference and the frozen `CONDITIONS` declared in `src/arlm_evaluation.py`. Its standalone lineage manifest now quarantines unknown condition names before partition assignment, matching the existing ledger-backed case validation. This is metadata validation only; no donor source or preregistration was modified.
