@@ -141,3 +141,7 @@ The independent `build_manifest` entry point now rejects condition labels absent
 ## 2026-11-23 — Lineage identifier quarantine and CI runner
 
 Tightened `build_manifest` to reject family/revision identifiers with leading or trailing whitespace, preventing ambiguous partition keys. Added a regression covering three whitespace variants. Added `.github/workflows/arlm-lineage.yml` to compile ARLM modules and run `LineageManifestContract` on integration-branch pushes. A previous attempt to join cases on matching revision IDs was reverted before this checkpoint because fixture revisions can be reused across unrelated families. The final source preserves the existing partition semantics. No Stage 3 neural training or activation occurred. Execution is pending; see test evidence.
+
+## 2026-11-23 — CI verification recovered
+
+GitHub Actions run [45278661391](https://github.com/justappgrabbin/Automind-POP/actions/runs/45278661391) completed successfully on the integration branch (head `aeb75d8`). Its checkout, Python setup, ARLM compile and deterministic lineage manifest contract steps all report success. This resolves the previous *unexecuted* status for the condition and whitespace identifier guards on that commit. The workflow's manifest-only selection does not run ledger-backed dataset intake, Qwen recovery, or neural qualification. The next bounded work is broadening automated engineering coverage while keeping the frozen preregistration unchanged.
