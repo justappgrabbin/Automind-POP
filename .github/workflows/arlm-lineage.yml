@@ -5,7 +5,11 @@ on:
     branches: [integration/automind-conductor]
     paths:
       - "src/arlm_*.py"
-      - "tests/arlm_dataset_contract.py"
+      - "tests/**"
+      - "src/model_*.py"
+      - "src/model-maker-requirements.txt"
+      - "vendor/trident/**"
+      - "src/**/*.mjs"
       - ".github/workflows/arlm-lineage.yml"
   workflow_dispatch:
 
@@ -25,3 +29,36 @@ jobs:
         run: python -m compileall -q src/arlm_*.py tests/arlm_dataset_contract.py
       - name: Run deterministic lineage manifest contracts
         run: python -m unittest discover -s tests -p arlm_dataset_contract.py -k LineageManifestContract -v
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original Model Maker dependencies
+        run: python -m pip install -r src/model-maker-requirements.txt
+      - name: Run Node contracts
+        run: npm test && bash tests/address-cli.sh
+      - name: Verify checkpoint digests
+        run: python tests/model_registry_digest_contract.py
+      - name: Train and verify disposable Foundry fixture
+        env:
+          POP_FOUNDRY_EVIDENCE_DIR: ${{ runner.temp }}/pop-foundry
+        run: |
+          python tests/model_maker_contract.py
+          foundry=$(find "$POP_FOUNDRY_EVIDENCE_DIR" -type d -name foundry -print -quit)
+          test -n "$foundry"
+          test -f "$foundry/registry.json"
+          echo "POP_STAGE3_FOUNDRY=$foundry" >> "$GITHUB_ENV"
+      - name: Run ledger-backed ARLM contracts
+        run: |
+          set -e
+          for contract in arlm_dataset_contract arlm_leakage_contract arlm_perspective_inputs arlm_adapter_contract arlm_contact_contract arlm_positional_meaning; do
+            python "tests/$contract.py"
+          done
