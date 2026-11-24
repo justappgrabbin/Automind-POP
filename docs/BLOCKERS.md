@@ -97,3 +97,5 @@ GitHub-hosted [run 45278661391](https://github.com/justappgrabbin/Automind-POP/a
 ## 2026-11-23 — Lineage token regression follow-up
 
 The all-link-field whitespace guard and regression are committed. Its execution must be confirmed from a GitHub Actions run whose head contains test commit `b24c6693`; earlier successful workflow run 45278661391 cannot verify this new change. Independent reviewer authorization, source permissions, and 600 held-out families remain outstanding. Stage 3 neural training, qualification, and activation remain separately gated.
+
+The preceding lineage-token CI execution requirement was resolved by [run 45296213554](https://github.com/justappgrabbin/Automind-POP/actions/runs/45296213554), which executed 11 manifest tests successfully at head `b24c6693`. The outstanding test gap is ledger-backed dataset integration and full conductor recovery/restart on this branch, not this manifest guard. Independent qualification intake and separate neural-training approval remain open.
