@@ -432,3 +432,7 @@ GitHub Actions [run 45278661391](https://github.com/justappgrabbin/Automind-POP/
 ## 2026-11-23 — All-link-field whitespace regression
 
 Source `14467739` and test `b24c6693` add `test_lineage_tokens_with_ambiguous_whitespace_quarantined`: six lineage fields × three malformed scalar/list forms. The existing `.github/workflows/arlm-lineage.yml` triggers on `src/arlm_*.py` and `tests/arlm_dataset_contract.py` changes, compiling ARLM modules and running `LineageManifestContract` under Python 3.11. **At commit time execution is pending; no pass claimed for this new test.** The earlier successful run 45278661391 predates these commits.
+
+### Executed CI result for lineage token guard
+
+GitHub Actions [run 45296213554](https://github.com/justappgrabbin/Automind-POP/actions/runs/45296213554), head `b24c6693a4c7ca16226c76c3e7178ddc099147d5`, completed successfully on 2026-11-24 00:19 UTC. Retrieved job 138117142028 logs: Python 3.11.18; compile step succeeded; `python -m unittest discover -s tests -p arlm_dataset_contract.py -k LineageManifestContract -v` ran **11 tests in 0.003s, OK**, including `test_lineage_tokens_with_ambiguous_whitespace_quarantined`. This verifies the new manifest guard only; ledger-backed intake and conductor restart were not run in this workflow.
