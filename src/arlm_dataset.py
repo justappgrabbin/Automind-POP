@@ -185,7 +185,7 @@ def build_manifest(rows, salt, *, bucket_digest=digest):
         tokens = []
         for field in LINK_FIELDS[1:]:
             values = row[field] if isinstance(row[field], list) else [row[field]]
-            if not values or any(not isinstance(v, str) or not v.strip() for v in values):
+            if not values or any(not isinstance(v, str) or not v.strip() or v != v.strip() for v in values):
                 raise ValueError("Unresolved lineage conflict; quarantine row")
             tokens.extend((field, v.strip()) for v in values)
         identity = (family, row["revision"], row["condition"])
