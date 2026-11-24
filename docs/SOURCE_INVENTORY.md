@@ -137,3 +137,7 @@ history. Its lineage manifest and eight original checks are integrated here.
 ## 2026-11-23 — Verified lineage CI execution
 
 The original `src/arlm_dataset.py` lineage builder and `tests/arlm_dataset_contract.py` regression were exercised by `.github/workflows/arlm-lineage.yml` on GitHub-hosted Python 3.11. Workflow run 45278661391 (head `aeb75d8800be5cc6fa97da2285d4c606e37e1741`) completed successfully. This is an executed contract check, not new donor import or qualification evidence.
+
+## 2026-11-23 — Lineage token normalization guard
+
+`src/arlm_dataset.py` now rejects leading/trailing whitespace in each of the six lineage link fields, including list members, rather than silently stripping those values before connected-family assignment. `tests/arlm_dataset_contract.py` adds a field-by-field regression for scalar and list values. No original donor files, frozen protocol, or trained artifacts changed.
