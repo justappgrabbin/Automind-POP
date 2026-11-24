@@ -191,6 +191,15 @@ class LineageManifestContract(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     build_manifest([candidate], "frozen")
 
+    def test_lineage_tokens_with_ambiguous_whitespace_quarantined(self):
+        # Normalizing tokens silently can merge unrelated source families.
+        for field in ("expressionFamily", "sourceLineage", "templateFamily",
+                      "graphAncestry", "derivedParent", "aliasFamily"):
+            for value in (" shared", "shared ", ["valid", " shared"]):
+                with self.subTest(field=field, value=value):
+                    with self.assertRaisesRegex(ValueError, "Unresolved lineage conflict"):
+                        build_manifest([row("a", **{field: value})], "frozen")
+
     def test_source_change_changes_digest(self):
         original = row("a")
         changed = copy.deepcopy(original)
