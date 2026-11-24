@@ -145,3 +145,7 @@ Tightened `build_manifest` to reject family/revision identifiers with leading or
 ## 2026-11-23 — CI verification recovered
 
 GitHub Actions run [45278661391](https://github.com/justappgrabbin/Automind-POP/actions/runs/45278661391) completed successfully on the integration branch (head `aeb75d8`). Its checkout, Python setup, ARLM compile and deterministic lineage manifest contract steps all report success. This resolves the previous *unexecuted* status for the condition and whitespace identifier guards on that commit. The workflow's manifest-only selection does not run ledger-backed dataset intake, Qwen recovery, or neural qualification. The next bounded work is broadening automated engineering coverage while keeping the frozen preregistration unchanged.
+
+## 2026-11-23 — Reject ambiguous lineage tokens
+
+Extended the existing manifest intake quarantine to all six lineage token fields, preventing silent normalization of distinct source, alias, graph, expression, template, and derived-parent identifiers. Added 18 subcases in `LineageManifestContract`. Source commit `14467739`, test commit `b24c6693`. GitHub Actions execution evidence is tracked separately in `TEST_EVIDENCE.md`. No Stage 3 training or activation.
