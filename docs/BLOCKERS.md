@@ -93,3 +93,7 @@ The identifier-quarantine regression is committed but has not been executed. Loc
 ## 2026-11-23 — CI blocker resolved for manifest contracts
 
 GitHub-hosted [run 45278661391](https://github.com/justappgrabbin/Automind-POP/actions/runs/45278661391) succeeded on head `aeb75d8`, including the manifest contract test step. The earlier statement that this particular regression had not executed is superseded. The local container DNS limitation remains for *local* checkout, but is not a blocker to running this GitHub-hosted subset. Ledger-backed dataset contracts and full end-to-end conductor tests are not covered by this workflow. Independent source/evaluator permissions and 600 held-out families remain outstanding; neural training, qualification, and activation still require separate approval.
+
+## 2026-11-23 — Lineage token regression follow-up
+
+The all-link-field whitespace guard and regression are committed. Its execution must be confirmed from a GitHub Actions run whose head contains test commit `b24c6693`; earlier successful workflow run 45278661391 cannot verify this new change. Independent reviewer authorization, source permissions, and 600 held-out families remain outstanding. Stage 3 neural training, qualification, and activation remain separately gated.
