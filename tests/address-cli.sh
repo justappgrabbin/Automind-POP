@@ -11,7 +11,7 @@ if node src/cli.mjs resolve-address "$state_file" "$bad_input" > "$test_state/fa
   echo 'Expected the canonical verifier to reject the invalid axis' >&2
   exit 1
 fi
-rg -q 'failed canonical verification.*arcAxis.axis' "$test_state/failure"
+grep -Eq 'failed canonical verification.*arcAxis\.axis' "$test_state/failure"
 node src/cli.mjs latest-address "$state_file" > "$test_state/restored"
 cmp "$test_state/first" "$test_state/restored"
 
@@ -19,5 +19,5 @@ input=${input/\"gate\":41/\"gate\":42}
 node src/cli.mjs resolve-address "$state_file" "$input" > "$test_state/retry"
 node src/cli.mjs latest-address "$state_file" > "$test_state/restored"
 cmp "$test_state/retry" "$test_state/restored"
-rg -q '"gate": 43' "$test_state/retry"
+grep -Fq '"gate": 43' "$test_state/retry"
 echo 'Address CLI recovered the verified retry across processes.'
