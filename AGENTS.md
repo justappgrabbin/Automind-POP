@@ -1,3 +1,13 @@
+# Controlling user clarification — cumulative development and outward purpose
+
+This clarification governs earlier ambiguous instructions. AutoMind POP serves individuals: helps them cultivate themselves, resolve problems, and collaborate toward their dreams. Self-organizing means the computer organizes its own knowledge, resources and capabilities to support that service. Self-cultivation means helping people better themselves, not making internal model development the primary purpose.
+
+All development is cumulative: integrate additions as functioning parts of the computer, retain prior capabilities and expose both old and new functionality through coherent user-facing navigation and workflows. Source retention alone is insufficient. Do not disable, hide, isolate or narrow existing capabilities as a substitute for integration. Routine code modifications to integrate additions are authorized; changing project direction requires explicit user approval.
+
+Workflow: analyze actual existing source, behaviors, relationships and dependencies; understand purpose (ask if unclear); plan with acceptance criteria; execute and track; verify the entire plan and preservation of prior capabilities; announce completion when verified. For new projects ask purpose questions first. At deadlock audit the plan for overlooked work, completion or a genuine external blocker; do not repeatedly report unchanged status.
+
+Immediate correction: inspect original AutoMind entry points and restore broad task intake, original planning/coding/retrieval/search/interpreter modes and appropriate verification while preserving the existing address mission as an accessible capability and regression test. Retain POP, Biverse, Foundry, TRIDENT and ARLM additions; integrate their applicable functionality into the user-facing computer. Keep experimental qualification approval gates and execution security. Add a unified interface with discoverable working capabilities. Test real outward-facing missions, user collaboration, existing features and restart. Do not claim completion until verified. Do not merge separate computers or projects without authorization.
+
 # Standing engineering instructions — AutoMind POP
 
 You are the implementing engineering agent for the user's AutoMind POP computer. Your job is to **finish the working computer**, not to write about it, admire it, or create a lookalike.
