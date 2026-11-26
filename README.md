@@ -261,3 +261,18 @@ and bind to the exact inference digest. A correction supersedes the preceding
 label digest and needs a new interpretation-training approval. This route only
 prepares data. The preregistered family, condition, and seed requirements still
 govern any future qualification.
+
+
+## Personal development workspace (new cumulative capability)
+
+This branch now includes a mobile-responsive personal workspace at [web/index.html](web/index.html), original licensed MIMO/MYLIFE/Sage Coach materials in [vendor/personal](vendor/personal), a source-derived Pocket Sage decision calculator, and an additive local-only bridge to the existing AutoMind runtime.
+
+From the repository root with Node.js 22+:
+
+```bash
+npm start
+```
+
+Open **http://127.0.0.1:8787** on the same computer. Use MIMO, MYLIFE Vault, Decide, Coach, Projects and the original AutoMind computer tools from the visible navigation. The original runtime's JSON input validation still applies. `npm test` exercises the new personal contracts and preserved existing tests.
+
+See [docs/PERSONAL_WORKSPACE.md](docs/PERSONAL_WORKSPACE.md) for verified features, exact source provenance, privacy controls, runtime constraints and unfinished work. This is a local working slice, not a public deployment, complete autonomous AI coach, secure login service, or finished general-purpose computer.
