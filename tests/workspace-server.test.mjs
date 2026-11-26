@@ -31,3 +31,23 @@ test('licensed personal source routes return real templates and reject traversal
  const invalid=await fetch(url+'/api/personal-source?group=vault&name=..%2F..%2Fsecret');
  assert.equal(invalid.status,400);
 }));
+
+test('real HTTP runtime verifies address, rejects invalid input, and restores state after restart',async t=>{
+ const {mkdtemp,rm}=await import('node:fs/promises');
+ const {tmpdir}=await import('node:os');
+ const {join}=await import('node:path');
+ const {openRuntime}=await import('../src/runtime.mjs');
+ const dir=await mkdtemp(join(tmpdir(),'pop-http-'));t.after(()=>rm(dir,{recursive:true,force:true}));
+ const statePath=join(dir,'state.json');
+ const input={micro:{gate:41,line:4,color:2,tone:5,base:3},macro:{planet:0,dimension:0,zodiac:0,house:0},emergent:{degree:1,minute:0,second:0,arcSecond:0}};
+ async function session(fn){
+  const server=createWorkspaceServer({statePath});server.listen(0,'127.0.0.1');await once(server,'listening');
+  const url='http://127.0.0.1:'+server.address().port;
+  try{await fn(async input=>{const response=await fetch(url+'/api/mission',{method:'POST',headers:{'content-type':'application/json','origin':url},body:JSON.stringify({capability:'resolve-address',input})});return {status:response.status,body:await response.json()};});}
+  finally{await new Promise((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}
+ }
+ let first;
+ await session(async run=>{const result=await run(input);assert.equal(result.status,200);first=result.body.result;assert.equal(first.address.gate,42);assert.equal(first.receipt.consumer,'canonical-address-verifier');const invalid=await run({...input,micro:{...input.micro,gate:64}});assert.equal(invalid.status,400);});
+ assert.deepEqual((await openRuntime(statePath)).latest(),first);
+ await session(async run=>{const result=await run({...input,micro:{...input.micro,gate:42}});assert.equal(result.status,200);assert.equal(result.body.result.address.gate,43);assert.notEqual(result.body.result.id,first.id);assert.deepEqual((await openRuntime(statePath)).latest(),result.body.result);});
+});
