@@ -149,3 +149,26 @@ GitHub Actions run [45278661391](https://github.com/justappgrabbin/Automind-POP/
 ## 2026-11-23 — Reject ambiguous lineage tokens
 
 Extended the existing manifest intake quarantine to all six lineage token fields, preventing silent normalization of distinct source, alias, graph, expression, template, and derived-parent identifiers. Added 18 subcases in `LineageManifestContract`. Source commit `14467739`, test commit `b24c6693`. GitHub Actions execution evidence is tracked separately in `TEST_EVIDENCE.md`. No Stage 3 training or activation.
+
+
+## 2026-11-26 — Personal workspace functional addition (cumulative)
+
+**Purpose:** Help individuals develop self-understanding, organize life records, make transparent decisions, explore coaching methods, and progress on goals, while keeping original AutoMind computation usable. This is a working first slice, not completion of the general-purpose computer.
+
+Implemented source commits:
+- [7dbf585](https://github.com/justappgrabbin/Automind-POP/commit/7dbf585916b8b08f0d34cf6752d5d16f257167fa): personal core, MIMO evidence flow, MYLIFE slots, Pocket Sage calculation port, four Sage tracks, goal lifecycle.
+- [f91276b](https://github.com/justappgrabbin/Automind-POP/commit/f91276b023e8f64c79340dc8103f13763502aae0): mobile-responsive personal UI.
+- [62c6bcb](https://github.com/justappgrabbin/Automind-POP/commit/62c6bcb7504c09c86c772a89a03bc25f122713b8): personal core contract tests.
+- [9ba05d2](https://github.com/justappgrabbin/Automind-POP/commit/9ba05d2cc99dfae0d72a1cb45dbd97fe3be67088), [952577d](https://github.com/justappgrabbin/Automind-POP/commit/952577d3082a24ade5dd7bf3abb76e379cd7f572), [3b16694](https://github.com/justappgrabbin/Automind-POP/commit/3b166949ab9fd93cf487a6f9c2000eea4931917f), [8ba6313](https://github.com/justappgrabbin/Automind-POP/commit/8ba6313f4aa784087abcd301c4609cc2a6b28301): preserved original licensed MIMO playbooks, MYLIFE templates, Sage Coach skills.
+- [12fe8e8](https://github.com/justappgrabbin/Automind-POP/commit/12fe8e8d68cc4cc84f504f12adc17eb30462f669) and [7a0b8c7](https://github.com/justappgrabbin/Automind-POP/commit/7a0b8c751a87a47ba9220c1eef4e6df4bb5ab30b): localhost-only Node bridge routing allowlisted original AutoMind missions and tests.
+- [5001d8f](https://github.com/justappgrabbin/Automind-POP/commit/5001d8ff7f3d6b4ca65d437eaa742e37f030b6ab): browser controls for invoking the existing address, Biverse perspective, and positional runtime missions.
+- [6a0076a](https://github.com/justappgrabbin/Automind-POP/commit/6a0076abe72ab8f8a95bd574233c1fdc3bc7f271), [24cdf89](https://github.com/justappgrabbin/Automind-POP/commit/24cdf89754f44a52e866b827523c3a7cd463a5f2), [d311c41](https://github.com/justappgrabbin/Automind-POP/commit/d311c41e80cece5a58aee51fb0c40372eb675a6c): safe source-template routes, visible MYLIFE/Sage source controls, source-route contract tests.
+- Launch/docs: `npm start`, `docs/PERSONAL_WORKSPACE.md`.
+
+GitHub CI confirmations:
+- [Run 45807945597](https://github.com/justappgrabbin/Automind-POP/actions/runs/45807945597) **success**, includes new personal core contracts and existing repo checks.
+- [Run 45808572903](https://github.com/justappgrabbin/Automind-POP/actions/runs/45808572903) **success**, includes new runtime bridge tests and existing checks.
+- [Run 45808815585](https://github.com/justappgrabbin/Automind-POP/actions/runs/45808815585) **success**, includes original source route tests and existing checks.
+
+Verification boundaries: GitHub Actions Node/Python tests succeeded; a real-browser usability screenshot, local deployed service, cross-device access, account authentication, actual adaptive MIMO dialogue, full Pocket Sage options, full original AutoMind broad-task interface and human-design source integration remain unverified/incomplete. These additions do not disable the previously implemented runtime and test routes.
+
