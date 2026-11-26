@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#21152d"><title>AutoMind POP · Portable Personal Workspace</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#eee8f3;background:#140f1c}*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 80% 0%,#3d244c,#140f1c 55%)}button,input,textarea,select{font:inherit}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:19px 18px;border-bottom:1px solid #54435b;flex-wrap:wrap}
+h1{font-size:1.25rem;margin:0}h2{font-size:1.25rem;margin:0 0 12px}h3{font-size:1rem;margin:14px 0 8px}p{line-height:1.55;color:#cbc0d1}
+nav{display:flex;gap:7px;overflow:auto;padding:12px 16px;border-bottom:1px solid #403346}nav button{white-space:nowrap}
+button,.button{border:1px solid #6e5778;background:#382a43;color:#f5eefa;border-radius:12px;padding:10px 12px;cursor:pointer}
+button.active,.primary{background:#8d65af;color:#140c1e;border-color:#a782c9;font-weight:650}button:hover{filter:brightness(1.13)}
+main{max-width:900px;margin:0 auto;padding:24px 18px 72px}.panel{padding:18px;background:#241b2e;border:1px solid #51405a;border-radius:20px;margin-bottom:15px}.muted{color:#b7a9c4}
+label{display:block;color:#dfcbe5;font-size:.92rem;margin:12px 0 6px}input:not([type=checkbox]),textarea,select{width:100%;background:#191321;color:#f6f0fa;border:1px solid #675574;border-radius:11px;padding:10px;outline-offset:2px}
+textarea{min-height:100px;resize:vertical}input[type=checkbox]{accent-color:#be9ad8;width:17px;height:17px;vertical-align:middle}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.tile{border:1px solid #51405a;background:#2b2034;border-radius:13px;padding:14px}.tile p{margin-bottom:0}
+output,.result{display:block;background:#18111f;padding:14px;border-radius:11px;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:12px}
+small{color:#baa9c7}.hidden{display:none!important}a{color:#d8abf9}.pill{border:1px solid #675574;border-radius:20px;padding:4px 9px;font-size:.8rem}
+</style></head>
+<body><header><h1>AutoMind <span style="color:#d8aafa">POP</span></h1><span class="pill" id="persistStatus">Session only</span></header>
+<nav aria-label="Capabilities" id="nav">
+<button data-tab="home" class="active">Home</button><button data-tab="discover">MIMO</button><button data-tab="vault">MYLIFE</button><button data-tab="decide">Decide</button><button data-tab="coach">Coach</button><button data-tab="goals">Projects</button><button data-tab="compute">Computer</button><button data-tab="data">My data</button>
+</nav>
+<main>
+<section id="home" class="tab"><div class="panel"><h2>What would you like to do?</h2><p>This workspace adapts to your goal. Discover who you are, organize your life, evaluate a decision, work with a coaching guide, or manage a project. All four foundations are accessible without Human Design.</p><div class="grid" id="homeTiles"></div></div></section>
+<section id="discover" class="tab hidden"><div class="panel"><h2>MIMO · Discover yourself</h2><p>Explore concrete experiences, choices and costs. Your answers are evidence, not automated personality labels. Skip or revise anything.</p><p class="muted" id="questionCount"></p><label id="questionLabel" for="mimoAnswer"></label><textarea id="mimoAnswer" placeholder="Your experience, in your own words"></textarea><div class="actions"><button id="prevQ">Previous</button><button class="primary" id="saveQ">Save answer and continue</button><button id="skipQ">Skip</button></div></div><div class="panel"><h3>Self Manual · Your own words</h3><label for="values">Values and principles (comma-separated)</label><input id="values"><label for="direction">What kind of life are you working toward?</label><textarea id="direction"></textarea><label for="tension">Important tension or difficult trade-off</label><textarea id="tension"></textarea><label for="corrections">Corrections to previous understandings</label><textarea id="corrections"></textarea><button id="saveManual" class="primary">Save self manual</button><p><small>Source methodology: MIMO evidence-led deep exploration. The completed report and AI interviewer require an actual language-model integration; this form captures the authentic evidence without inventing conclusions.</small></p></div></section>
+<section id="vault" class="tab hidden"><div class="panel"><h2>MYLIFE Vault</h2><p>Twelve editable life documents derived from the MYLIFE project. You decide what goes into each document.</p><label for="docSelect">Document</label><select id="docSelect"></select><label for="docContent">Content</label><textarea id="docContent" style="min-height:280px"></textarea><div class="actions"><button id="saveDoc" class="primary">Save document</button><button id="exportDoc">Download document</button><button id="loadOriginalDoc">Load original MYLIFE template</button></div><p><small>Birth-based analyses are optional and have not been enabled in this milestone.</small></p></div></section>
+<section id="decide" class="tab hidden"><div class="panel"><h2>Pocket Sage · Decision calculator</h2><p>Enter assumptions on a consistent scale. The result uses Pocket Sage's expected utility, asymmetric risk, cognitive load and future optionality equations; it is not a prediction.</p>
+<label for="actionName">Option or action</label><input id="actionName" placeholder="For example, prototype my project">
+<div class="grid">
+<div><label for="monetary">Monetary impact (scaled)</label><input id="monetary" type="number" step=".1" value=".4"></div>
+<div><label for="timeSaved">Time saved (scaled)</label><input id="timeSaved" type="number" step=".1" value=".3"></div>
+<div><label for="leverage">Long-term leverage (0–1)</label><input id="leverage" type="number" min="0" max="1" step=".1" value=".6"></div>
+<div><label for="stress">Stress reduction (-1 to 1)</label><input id="stress" type="number" min="-1" max="1" step=".1" value=".2"></div>
+<div><label for="failureP">Failure probability (0–1)</label><input id="failureP" type="number" min="0" max="1" step=".05" value=".2"></div>
+<div><label for="downside">Failure downside (nonnegative)</label><input id="downside" type="number" min="0" step=".1" value=".3"></div>
+<div><label for="reversible">Is failure reversible?</label><select id="reversible"><option value="yes">Yes</option><option value="no">No</option></select></div>
+<div><label for="information">Information required (0–1)</label><input id="information" type="number" min="0" max="1" step=".1" value=".2"></div>
+<div><label for="switches">Context switches</label><input id="switches" type="number" min="0" step="1" value="2"></div>
+<div><label for="volatility">Emotional volatility (0–1)</label><input id="volatility" type="number" min="0" max="1" step=".1" value=".2"></div>
+<div><label for="future">Future choices created</label><input id="future" type="number" min="0" step="1" value="2"></div></div>
+<div class="actions"><button class="primary" id="calculate">Evaluate</button><button id="saveDecision" disabled>Save decision</button></div><output id="decisionOutput" aria-live="polite">Enter your assumptions, then evaluate.</output>
+<p><small>The original Pocket Sage thresholds are preserved, including its catch-all 'abort' result. Calibrate weights and scales to your circumstances before using a score for consequential decisions.</small></p></div></section>
+<section id="coach" class="tab hidden"><div class="panel"><h2>Sage Coach · Development</h2><p>Choose one of the source project's four coaching tracks. These stages are available to organize an ongoing coaching conversation.</p><div class="grid" id="coaches"></div><label for="coachNotes">Your notes and next action</label><textarea id="coachNotes"></textarea><button class="primary" id="saveCoach">Save coaching note</button><button id="readCoachSource">Read original coaching method</button><output id="coachOutput" aria-live="polite"></output></div></section>
+<section id="goals" class="tab hidden"><div class="panel"><h2>My projects and goals</h2><p>Record a goal and move it through planned, active and complete states. These become explicit work items for the broader AutoMind conductor.</p><label for="newGoal">Goal</label><textarea id="newGoal" placeholder="What do you want to accomplish?"></textarea><button id="addGoal" class="primary">Add goal</button><div id="goalList"></div></div></section>
+<section id="compute" class="tab hidden"><div class="panel"><h2>AutoMind · Existing computer</h2><p>The original AutoMind computational source, POP addressing, Biverse perspective, Foundry and ARLM remain in the repository. When opened through the local AutoMind server, these three existing missions execute directly through the original runtime.</p>
+<label for="missionChoice">Existing computer capability</label><select id="missionChoice"><option value="resolve-address">Resolve address</option><option value="locate-perspective">Locate perspective</option><option value="compare-position">Compare position</option></select>
+<label for="missionInput">Runtime request (JSON)</label><textarea id="missionInput" spellcheck="false" placeholder='{"micro":{"gate":0,"line":0,"color":0,"tone":0,"base":0},"macro":{"planet":0,"dimension":0,"zodiac":0,"house":0},"emergent":{"degree":0,"minute":0,"second":0,"arcSecond":0}}'></textarea>
+<div class="actions"><button id="runMission" class="primary">Run with AutoMind</button><button id="checkComputer">Check connection</button></div><output id="missionOutput" aria-live="polite">Portable mode: personal tools work offline; computer missions require the local server.</output><div class="grid"><div class="tile"><h3>Address resolver</h3><p>Existing verified 13-field address capability</p><code>node src/cli.mjs resolve-address STATE_PATH JSON_INPUT</code></div><div class="tile"><h3>Perspective engine</h3><p>Existing Biverse perspective execution</p><code>node src/cli.mjs locate-perspective STATE_PATH JSON_INPUT</code></div><div class="tile"><h3>Position comparison</h3><p>Existing positional comparison capability</p><code>node src/cli.mjs compare-position STATE_PATH JSON_INPUT</code></div></div><p><a href="../README.md">Repository instructions</a></p></div></section>
+<section id="data" class="tab hidden"><div class="panel"><h2>Data and privacy</h2><p>Information stays in this browser session unless you explicitly enable storage on this device. This is a local prototype: it does not offer account authentication, encryption or cloud synchronization. Browser storage may be readable to others using this device/profile.</p><label><input id="storageConsent" type="checkbox"> Save my personal information in this browser</label><div class="actions"><button id="downloadData">Export my data as JSON</button><button id="importData">Import a saved record</button><input id="importFile" type="file" accept="application/json,.json" class="hidden"><button id="eraseData">Erase this workspace's browser data</button></div><output id="dataStatus" aria-live="polite"></output></div></section>
+</main>
+<script type="module">
+// AutoMind POP personal-workspace computational core.
+// MIMO method: mimo-skill-main/SKILL.md and references/interview-playbook.md.
+// MYLIFE structure: mylife-vault-main/templates/*.md.
+// Pocket Sage calculation: Pocket-Sage/client/lib/decision-engine.ts (adapted to plain JS).
+// Sage Coach tracks: sage-coach-main/skills/*/SKILL.md.
+// These are locally inspectable computation/collection primitives; no unverified AI inferences.
+const PERSONAL_MODULES = Object.freeze([
+ {id:'mimo',name:'MIMO discovery',source:'mimo-skill-main',purpose:'Evidence-led self-understanding'},
+ {id:'mylife',name:'MYLIFE Vault',source:'mylife-vault-main',purpose:'Personal records and plans'},
+ {id:'pocket-sage',name:'Pocket Sage',source:'Pocket-Sage',purpose:'Transparent decision scoring'},
+ {id:'sage-coach',name:'Sage Coach',source:'sage-coach-main',purpose:'Developmental coaching tracks'}
+]);
+const VAULT_DOCUMENTS=Object.freeze(['philosophy','self_profile','life_os','life_compass','roadmap','career_style','love_style','investment_style','relationship_protocol','side_project_strategy','saju','zodiac']);
+const COACH_TRACKS=Object.freeze({
+ career:{name:'Career transition',stages:['See Clearly','Explore','Prototype','Decide','Leap']},
+ crisis:{name:'Crisis companion',stages:['Holding','Grounding','Seeing','Rising']},
+ startup:{name:'Startup mentor',stages:['Product','Cognition','Execution','Mental Strength']},
+ spiritual:{name:'Spiritual guide',stages:['Scattered Mind','Settling','Focused','Bodhicitta','Emptiness View']}
+});
+const DEFAULT_WEIGHTS=Object.freeze({monetary:.35,time:.25,leverage:.25,stress:.15,riskTolerance:.6,cognitiveLoad:.8,optionality:.4});
+const MIMO_PROMPTS=Object.freeze([
+ 'Describe a real turning point. What choices did you actually have?',
+ 'What did you decide and what did that choice cost you?',
+ 'Looking back, what were you protecting, and how do you feel about the decision now?',
+ 'Describe another concrete choice, preferably one in a different situation.',
+ 'What did you choose, give up, and learn from that second experience?',
+ 'Is there a time you chose differently or a counterexample to your emerging pattern?',
+ 'What life do you want to build, and which principles are worth a real cost to protect?'
+]);
+const finite=(x,name)=>{if(typeof x!=='number'||!Number.isFinite(x))throw new TypeError(name+' must be a finite number');return x;};
+const probability=(x,name)=>{finite(x,name);if(x<0||x>1)throw new RangeError(name+' must be in [0,1]');return x;};
+function createPersonalRecord(){return {schema:'automind.personal.v1',version:1,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),consented:false,displayName:'',mimo:{answers:[],selfManual:{values:[],direction:'',coreTension:'',userCorrections:''}},vault:Object.fromEntries(VAULT_DOCUMENTS.map(k=>[k,''])),decisions:[],coachSessions:[],goals:[]};}
+function validateRecord(record){if(!record||record.schema!=='automind.personal.v1'||!Array.isArray(record.mimo?.answers)||!record.vault||!Array.isArray(record.decisions)||!Array.isArray(record.goals))throw new TypeError('Unsupported personal record');return record;}
+function writeAnswer(record,index,answer){validateRecord(record);if(!Number.isInteger(index)||index<0||index>=MIMO_PROMPTS.length)throw new RangeError('Unknown MIMO prompt');if(typeof answer!=='string')throw new TypeError('Answer must be text');const next=structuredClone(record);next.mimo.answers[index]=answer;next.updatedAt=new Date().toISOString();return next;}
+function updateDocument(record,name,content){validateRecord(record);if(!VAULT_DOCUMENTS.includes(name)||typeof content!=='string')throw new TypeError('Unsupported MYLIFE document');const next=structuredClone(record);next.vault[name]=content;next.updatedAt=new Date().toISOString();return next;}
+function updateSelfManual(record,patch){validateRecord(record);const allowed=['values','direction','coreTension','userCorrections'];if(!patch||Object.keys(patch).some(k=>!allowed.includes(k)))throw new TypeError('Invalid self-manual change');const next=structuredClone(record);for(const [key,val] of Object.entries(patch)){if(key==='values'?!Array.isArray(val)||!val.every(v=>typeof v==='string'):typeof val!=='string')throw new TypeError('Invalid manual field: '+key);next.mimo.selfManual[key]=val;}next.updatedAt=new Date().toISOString();return next;}
+function evaluateAction(action,weights=DEFAULT_WEIGHTS){
+ if(!action||!Array.isArray(action.outcomes)||!action.outcomes.length||!Array.isArray(action.failureModes))throw new TypeError('Action needs outcomes and failure modes');
+ for(const [k,v] of Object.entries(weights))finite(v,'weight '+k);
+ let expectedValue=0;
+ for(const o of action.outcomes){probability(o.probability,'outcome probability');expectedValue+=o.probability*(weights.monetary*finite(o.monetaryImpact,'monetaryImpact')+weights.time*finite(o.timeDelta,'timeDelta')+weights.leverage*finite(o.leverageCreated,'leverageCreated')+weights.stress*finite(o.stressReduction,'stressReduction'));}
+ const totalP=action.outcomes.reduce((s,o)=>s+o.probability,0);
+ if(totalP>1.000001)throw new RangeError('Combined outcome probabilities exceed 1');
+ let risk=0,irreversibleRisk=0;
+ for(const f of action.failureModes){probability(f.probability,'failure probability');finite(f.downsideMagnitude,'downsideMagnitude');if(f.downsideMagnitude<0)throw new RangeError('downsideMagnitude must be nonnegative');risk+=f.probability*f.downsideMagnitude*(f.isReversible?1:3);if(!f.isReversible)irreversibleRisk+=f.probability*f.downsideMagnitude;}
+ const cognitiveLoad=.4*probability(action.informationRequired,'informationRequired')+.35*finite(action.stateSwitches,'stateSwitches')/10+.25*probability(action.emotionalVolatility,'emotionalVolatility');
+ if(action.stateSwitches<0||action.futureOptionsCreated<0)throw new RangeError('Counts must be nonnegative');
+ const optionality=Math.log(1+finite(action.futureOptionsCreated,'futureOptionsCreated'));
+ const masterScore=expectedValue-weights.riskTolerance*risk-weights.cognitiveLoad*cognitiveLoad+weights.optionality*optionality;
+ const reversible=irreversibleRisk<.1;
+ // Preserve original Pocket Sage threshold ordering, including its "abort" catch-all.
+ let recommendation='abort',explanation='Risk or cost outweighs expected value. Not worth pursuing.';
+ if(masterScore>.7&&reversible){recommendation='proceed';explanation='High value, manageable risk, reversible. Move forward.';}
+ else if(masterScore>.3&&!reversible){recommendation='prepare';explanation='Good potential, but irreversible elements. Stage carefully.';}
+ else if(masterScore>0&&masterScore<=.3){recommendation='reconsider';explanation='Marginal value. Worth exploring alternatives first.';}
+ const maxProbability=Math.max(...action.outcomes.map(o=>o.probability));
+ return {actionId:action.id,expectedValue,risk,cognitiveLoad,optionality,masterScore,recommendation,explanation,confidenceLevel:maxProbability>.7?.9:maxProbability>.5?.7:.5,assumptions:{outcomeProbabilitySum:totalP,irreversibleRisk,reversibilityGate:reversible}};
+}
+function evaluateOptions(actions,weights=DEFAULT_WEIGHTS){if(!Array.isArray(actions)||!actions.length)throw new TypeError('Provide an action');return actions.map(a=>evaluateAction(a,weights)).sort((a,b)=>b.masterScore-a.masterScore);}
+function addDecision(record,action,result){validateRecord(record);const next=structuredClone(record);next.decisions.push({at:new Date().toISOString(),action,result});next.updatedAt=new Date().toISOString();return next;}
+function addGoal(record,text){validateRecord(record);if(typeof text!=='string'||!text.trim())throw new TypeError('Goal required');const next=structuredClone(record);next.goals.push({id:globalThis.crypto?.randomUUID?.()??String(Date.now()),text:text.trim(),status:'planned'});next.updatedAt=new Date().toISOString();return next;}
+function markGoal(record,id,status){validateRecord(record);if(!['planned','active','complete'].includes(status))throw new RangeError('Unknown status');const next=structuredClone(record);const goal=next.goals.find(x=>x.id===id);if(!goal)throw new RangeError('Unknown goal');goal.status=status;next.updatedAt=new Date().toISOString();return next;}
+
+const KEY='automind-pop-personal-v1';let record=createPersonalRecord(),q=0,lastDecision=null,selectedCoach='career';
+const el=id=>document.getElementById(id);const get=id=>el(id).value;const num=id=>{const n=Number(get(id));if(get(id).trim()===' '||get(id)==='')throw new Error('Enter '+id);return n;};
+const notify=(id,msg)=>{el(id).textContent=msg;};
+try{const raw=localStorage.getItem(KEY);if(raw){record=validateRecord(JSON.parse(raw));record.consented=true;}}catch(e){notify('dataStatus','Could not restore local data: '+e.message);}
+function persist(){if(record.consented){localStorage.setItem(KEY,JSON.stringify(record));}el('storageConsent').checked=record.consented;el('persistStatus').textContent=record.consented?'Saved on this device':'Session only';}
+function update(next){record=next;persist();}
+const sections=[...document.querySelectorAll('.tab')];
+function show(tab){sections.forEach(s=>s.classList.toggle('hidden',s.id!==tab));document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab==='discover')renderQ();if(tab==='vault')renderDoc();if(tab==='goals')renderGoals();}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+for(const m of PERSONAL_MODULES){const b=document.createElement('button');b.className='tile';b.textContent=m.name+' · '+m.purpose;b.onclick=()=>show(({mimo:'discover',mylife:'vault','pocket-sage':'decide','sage-coach':'coach'})[m.id]);el('homeTiles').append(b);}
+function renderQ(){el('questionCount').textContent='Experience '+(q+1)+' of '+MIMO_PROMPTS.length;el('questionLabel').textContent=MIMO_PROMPTS[q];el('mimoAnswer').value=record.mimo.answers[q]||'';el('prevQ').disabled=q===0;}
+el('saveQ').onclick=()=>{update(writeAnswer(record,q,get('mimoAnswer')));q=Math.min(q+1,MIMO_PROMPTS.length-1);renderQ();};
+el('skipQ').onclick=()=>{q=Math.min(q+1,MIMO_PROMPTS.length-1);renderQ();};
+el('prevQ').onclick=()=>{q=Math.max(0,q-1);renderQ();};
+function renderManual(){const m=record.mimo.selfManual;el('values').value=m.values.join(', ');el('direction').value=m.direction;el('tension').value=m.coreTension;el('corrections').value=m.userCorrections;}
+el('saveManual').onclick=()=>{update(updateSelfManual(record,{values:get('values').split(',').map(s=>s.trim()).filter(Boolean),direction:get('direction'),coreTension:get('tension'),userCorrections:get('corrections')}));el('saveManual').textContent='Saved';};
+for(const k of VAULT_DOCUMENTS){const opt=document.createElement('option');opt.value=k;opt.textContent=k.replaceAll('_',' ');el('docSelect').append(opt);}
+function renderDoc(){el('docContent').value=record.vault[get('docSelect')]||'';}
+el('docSelect').onchange=renderDoc;
+el('saveDoc').onclick=()=>{update(updateDocument(record,get('docSelect'),get('docContent')));el('saveDoc').textContent='Saved';};
+function download(name,data,type='application/json'){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+el('exportDoc').onclick=()=>download(get('docSelect')+'.md',get('docContent'),'text/markdown');
+el('loadOriginalDoc').onclick=async()=>{try{if(get('docContent').trim()&&!confirm('Replace editor contents with the original MYLIFE template?'))return;const r=await fetch('/api/personal-source?group=vault&name='+encodeURIComponent(get('docSelect')));if(!r.ok)throw new Error('Local server required');el('docContent').value=await r.text();}catch(e){alert('Could not load original template: '+e.message);}};
+el('calculate').onclick=()=>{try{const action={id:'option-'+Date.now(),description:get('actionName')||'Unnamed option',outcomes:[{id:'main',description:'Expected result',probability:1,monetaryImpact:num('monetary'),timeDelta:num('timeSaved'),leverageCreated:num('leverage'),stressReduction:num('stress')}],failureModes:[{id:'failure',description:'Downside',probability:num('failureP'),downsideMagnitude:num('downside'),isReversible:get('reversible')==='yes'}],informationRequired:num('information'),stateSwitches:num('switches'),emotionalVolatility:num('volatility'),futureOptionsCreated:num('future')};const result=evaluateAction(action);lastDecision={action,result};notify('decisionOutput',JSON.stringify({name:action.description,...result},null,2));el('saveDecision').disabled=false;}catch(e){lastDecision=null;el('saveDecision').disabled=true;notify('decisionOutput','Invalid input: '+e.message);}};
+el('saveDecision').onclick=()=>{if(!lastDecision)return;update(addDecision(record,lastDecision.action,lastDecision.result));notify('decisionOutput','Saved decision to your record.\n'+JSON.stringify(lastDecision.result,null,2));};
+for(const [key,track] of Object.entries(COACH_TRACKS)){const b=document.createElement('button');b.className='tile';b.textContent=track.name+' · '+track.stages.join(' → ');b.onclick=()=>{selectedCoach=key;notify('coachOutput','Selected '+track.name+'. The stages are guides, not an automated coach.');};el('coaches').append(b);}
+el('saveCoach').onclick=()=>{const next=structuredClone(record);next.coachSessions.push({track:selectedCoach,note:get('coachNotes'),at:new Date().toISOString()});update(next);notify('coachOutput','Note saved to '+COACH_TRACKS[selectedCoach].name);};
+el('readCoachSource').onclick=async()=>{try{const r=await fetch('/api/personal-source?group=coach&name='+encodeURIComponent(selectedCoach));if(!r.ok)throw new Error('Local server required');notify('coachOutput',await r.text());}catch(e){notify('coachOutput','Source unavailable: '+e.message);}};
+el('addGoal').onclick=()=>{try{update(addGoal(record,get('newGoal')));el('newGoal').value='';renderGoals();}catch(e){alert(e.message);}};
+function renderGoals(){const list=el('goalList');list.replaceChildren();for(const goal of record.goals){const row=document.createElement('div');row.className='tile';const title=document.createElement('p');title.textContent=goal.text;const select=document.createElement('select');for(const status of ['planned','active','complete']){const o=document.createElement('option');o.value=status;o.textContent=status;select.append(o);}select.value=goal.status;select.onchange=()=>{update(markGoal(record,goal.id,select.value));};row.append(title,select);list.append(row);}if(!record.goals.length){const p=document.createElement('p');p.textContent='No goals yet.';list.append(p);}}
+el('storageConsent').onchange=()=>{record.consented=el('storageConsent').checked;if(!record.consented)localStorage.removeItem(KEY);persist();notify('dataStatus',record.consented?'Local storage enabled':'No ongoing browser storage');};
+el('downloadData').onclick=()=>download('automind-personal-record.json',JSON.stringify(record,null,2));
+el('importData').onclick=()=>el('importFile').click();
+el('importFile').onchange=async()=>{try{const imported=validateRecord(JSON.parse(await el('importFile').files[0].text()));imported.consented=record.consented;update(imported);renderQ();renderManual();renderDoc();renderGoals();notify('dataStatus','Record imported');}catch(e){notify('dataStatus','Import rejected: '+e.message);}};
+el('eraseData').onclick=()=>{if(!confirm('Erase personal data from this browser workspace?'))return;localStorage.removeItem(KEY);record=createPersonalRecord();persist();renderQ();renderManual();renderDoc();renderGoals();notify('dataStatus','Local record erased');};
+el('checkComputer').onclick=async()=>{try{const r=await fetch('/api/capabilities');if(!r.ok)throw new Error('Local server not connected');const j=await r.json();notify('missionOutput','Connected to AutoMind runtime. Available: '+j.capabilities.join(', '));}catch(e){notify('missionOutput','No local AutoMind mission server available. Run: node src/workspace-server.mjs');}};
+el('runMission').onclick=async()=>{try{const input=JSON.parse(get('missionInput'));notify('missionOutput','Executing mission...');const r=await fetch('/api/mission',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({capability:get('missionChoice'),input})});const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'Mission failed');notify('missionOutput',JSON.stringify(j.result,null,2));}catch(e){notify('missionOutput','Mission error: '+e.message);}};
+persist();renderQ();renderManual();renderDoc();
+</script></body></html>
