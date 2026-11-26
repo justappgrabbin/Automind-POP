@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {resolve,dirname} from 'node:path';
 import {openRuntime} from './runtime.mjs';
+import {VAULT_DOCUMENTS, COACH_TRACKS} from './personal-core.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const assets=new Map([['/',{file:'web/index.html',type:'text/html; charset=utf-8'}],['/web/index.html',{file:'web/index.html',type:'text/html; charset=utf-8'}],['/src/personal-core.mjs',{file:'src/personal-core.mjs',type:'text/javascript; charset=utf-8'}]]);
 const actions=Object.freeze({'resolve-address':'resolve','locate-perspective':'perspective','compare-position':'comparePosition'});
@@ -18,6 +19,15 @@ export function createWorkspaceServer({statePath=resolve(root,'.automind-pop.loc
    const path=new URL(req.url,'http://localhost').pathname;
    if(req.method==='GET'&&assets.has(path)){const a=assets.get(path);const data=await readFile(resolve(root,a.file));respond(200,data,a.type);return;}
    if(req.method==='GET'&&path==='/api/capabilities'){respond(200,JSON.stringify({ok:true,capabilities:Object.keys(actions),personal:['mimo','mylife','pocket-sage','sage-coach'],mode:'local-only'}));return;}
+   if(req.method==='GET'&&path==='/api/personal-source'){
+    const url=new URL(req.url,'http://localhost'),group=url.searchParams.get('group'),name=url.searchParams.get('name');
+    let file;
+    if(group==='vault'&&VAULT_DOCUMENTS.includes(name))file=`vendor/personal/mylife/templates/${name}.md`;
+    else if(group==='coach'&&Object.hasOwn(COACH_TRACKS,name))file=`vendor/personal/sage-coach/skills/${name}/SKILL.md`;
+    else if(group==='mimo'&&name==='playbook')file='vendor/personal/mimo/references/interview-playbook.md';
+    if(!file){respond(400,errorBody(new TypeError('Unknown personal source')));return;}
+    respond(200,await readFile(resolve(root,file)),'text/plain; charset=utf-8');return;
+   }
    if(req.method==='POST'&&path==='/api/mission'){
     const origin=req.headers.origin;
     if(origin&&origin!==`http://127.0.0.1:${res.socket.localPort}`&&origin!==`http://localhost:${res.socket.localPort}`){respond(403,errorBody(new Error('Cross-origin requests are disabled')));return;}
