@@ -22,3 +22,12 @@ test('refuses arbitrary commands and disallowed cross-origin requests',async()=>
  const denied=await fetch(url+'/api/mission',options);assert.equal(denied.status,400);
  const cross=await fetch(url+'/api/mission',{...options,headers:{origin:'https://untrusted.example'}});assert.equal(cross.status,403);
 }));
+
+test('licensed personal source routes return real templates and reject traversal',async()=>withServer(async url=>{
+ const compass=await fetch(url+'/api/personal-source?group=vault&name=life_compass');
+ assert.equal(compass.status,200);assert.match(await compass.text(),/{{5년_한_줄}}/);
+ const coach=await fetch(url+'/api/personal-source?group=coach&name=startup');
+ assert.equal(coach.status,200);assert.match(await coach.text(),/startup|创业|精益|产品/i);
+ const invalid=await fetch(url+'/api/personal-source?group=vault&name=..%2F..%2Fsecret');
+ assert.equal(invalid.status,400);
+}));
