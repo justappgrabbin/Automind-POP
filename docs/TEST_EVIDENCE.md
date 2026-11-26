@@ -436,3 +436,21 @@ Source `14467739` and test `b24c6693` add `test_lineage_tokens_with_ambiguous_wh
 ### Executed CI result for lineage token guard
 
 GitHub Actions [run 45296213554](https://github.com/justappgrabbin/Automind-POP/actions/runs/45296213554), head `b24c6693a4c7ca16226c76c3e7178ddc099147d5`, completed successfully on 2026-11-24 00:19 UTC. Retrieved job 138117142028 logs: Python 3.11.18; compile step succeeded; `python -m unittest discover -s tests -p arlm_dataset_contract.py -k LineageManifestContract -v` ran **11 tests in 0.003s, OK**, including `test_lineage_tokens_with_ambiguous_whitespace_quarantined`. This verifies the new manifest guard only; ledger-backed intake and conductor restart were not run in this workflow.
+
+
+## 2026-11-26 — Personal workspace CI evidence
+
+New source + tests:
+- `src/personal-core.mjs`: evidence capture, MYLIFE documents, source-derived Pocket Sage scoring, coaching tracks, goals.
+- `web/index.html`: mobile-responsive visible controls and browser session/local-storage workflow.
+- `src/workspace-server.mjs`: localhost HTTP server calls existing `src/runtime.mjs` missions; reads allowlisted original vendor source documents.
+- `tests/personal-core.test.mjs` and `tests/workspace-server.test.mjs`: deterministic contracts.
+
+Verified GitHub-hosted runs:
+1. [45807945597](https://github.com/justappgrabbin/Automind-POP/actions/runs/45807945597): **success**, head 62c6bcb7504c09c86c772a89a03bc25f122713b8. Node test suite (including personal core) and existing integration jobs.
+2. [45808572903](https://github.com/justappgrabbin/Automind-POP/actions/runs/45808572903): **success**, head 7a0b8c751a87a47ba9220c1eef4e6df4bb5ab30b. Node test suite (including workspace HTTP bridge and mission dispatch) and existing integration jobs.
+3. [45808815585](https://github.com/justappgrabbin/Automind-POP/actions/runs/45808815585): **success**, head d311c41e80cece5a58aee51fb0c40372eb675a6c. Node suite adds original source loading and path traversal guards alongside the existing integration jobs.
+
+These results establish tested computations, server routing, request restrictions and source-file availability. The browser has not been visually inspected in a live hosted environment. A real user identity/login service, end-to-end AI coach, complete MIMO interviewing, real external deployment, persistent cross-device state, and original AutoMind broad task orchestration in the web UI have not been validated as completed.
+
+The test harness uses a stub runtime to isolate route correctness. Separate existing AutoMind runtime Node contracts test its actual address/perspective/position implementations. A combined real-runtime HTTP end-to-end test is still required. No live external hosting, human-design integration, or standalone product certification is implied.
