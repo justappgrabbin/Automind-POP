@@ -1,3 +1,7 @@
 [submodule "vendor/morphogenesis-resources"]
 	path = vendor/morphogenesis-resources
 	url = https://github.com/jasonwebb/morphogenesis-resources.git
+
+[submodule "vendor/aid-studio"]
+	path = vendor/aid-studio
+	url = https://github.com/shijue-aid/aid-studio.git
