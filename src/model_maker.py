@@ -163,6 +163,10 @@ def generate(registry, prompt, count, seed):
 
 
 def main():
+    # External toolkits are additive; native registry commands are unchanged.
+    if len(sys.argv) >= 3 and sys.argv[2] == "external":
+        from external_model_maker import main as external_main
+        sys.exit(external_main(sys.argv[3:]))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("workspace", type=Path)
     commands = parser.add_subparsers(dest="command", required=True)

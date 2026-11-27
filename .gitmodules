@@ -5,3 +5,11 @@
 [submodule "vendor/aid-studio"]
 	path = vendor/aid-studio
 	url = https://github.com/shijue-aid/aid-studio.git
+
+[submodule "vendor/train-llm-from-scratch"]
+	path = vendor/train-llm-from-scratch
+	url = https://github.com/FareedKhan-dev/train-llm-from-scratch.git
+
+[submodule "vendor/semantic-model-generator"]
+	path = vendor/semantic-model-generator
+	url = https://github.com/Snowflake-Labs/semantic-model-generator.git

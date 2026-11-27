@@ -172,3 +172,10 @@ GitHub CI confirmations:
 
 Verification boundaries: GitHub Actions Node/Python tests succeeded; a real-browser usability screenshot, local deployed service, cross-device access, account authentication, actual adaptive MIMO dialogue, full Pocket Sage options, full original AutoMind broad-task interface and human-design source integration remain unverified/incomplete. These additions do not disable the previously implemented runtime and test routes.
 
+
+## 2026-11-27 external toolkit intake
+- Public upstream sources pinned to the exact commit IDs embedded in the supplied Drive ZIPs: Train LLM From Scratch (MIT) bdd480a518094ca834e05ab32131dc126b522d3d; Semantic Model Generator (Apache-2.0 with accompanying legal notices) 8c011a3a4e53b3319d3c4c0109404285878a70f9.
+- Added an external launcher to the existing TRIDENT CLI; native commands unchanged. The launcher dispatches actual upstream scripts in separate processes, preserving their imports. It does not yet unify external checkpoint revisions with the TRIDENT registry or expose them in the mobile UI.
+- Dandelion, Cynthia Morph Modelmaker and Model Weaver original ZIPs remain in Drive; they include private runtime databases or Git history and were not published to this public repository. Their source integration remains open; preserve originals and transfer only reviewed source/assets or use a private repository/local workspace.
+- Local environment inspection: PyTorch 2.10.0 CPU available; actual upstream factory import failed with ModuleNotFoundError: jaxtyping. Installation attempt failed (no distribution available in this environment). No model inference or training completion claimed. External checkpoints must be trusted: upstream checkpoint loader uses torch.load(weights_only=False). Semantic UI requires Snowflake configuration for its backend.
+- Chitra and Drishya model weights remain separate downloads, not included in this commit; visual model loaders remain open.

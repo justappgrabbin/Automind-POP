@@ -141,3 +141,6 @@ The original `src/arlm_dataset.py` lineage builder and `tests/arlm_dataset_contr
 ## 2026-11-23 — Lineage token normalization guard
 
 `src/arlm_dataset.py` now rejects leading/trailing whitespace in each of the six lineage link fields, including list members, rather than silently stripping those values before connected-family assignment. `tests/arlm_dataset_contract.py` adds a field-by-field regression for scalar and list values. No original donor files, frozen protocol, or trained artifacts changed.
+
+## External Model Maker sources
+See [cumulative intake](CUMULATIVE_MODELMAKER.md) for exact upstream commits and private archive handling.

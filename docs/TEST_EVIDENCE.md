@@ -454,3 +454,6 @@ Verified GitHub-hosted runs:
 These results establish tested computations, server routing, request restrictions and source-file availability. The browser has not been visually inspected in a live hosted environment. A real user identity/login service, end-to-end AI coach, complete MIMO interviewing, real external deployment, persistent cross-device state, and original AutoMind broad task orchestration in the web UI have not been validated as completed.
 
 The test harness uses a stub runtime to isolate route correctness. Separate existing AutoMind runtime Node contracts test its actual address/perspective/position implementations. A combined real-runtime HTTP end-to-end test is still required. No live external hosting, human-design integration, or standalone product certification is implied.
+
+## External source intake
+Actual factory import in extracted Train LLM From Scratch archive failed on missing jaxtyping; pip install failed. No external runtime success asserted. See [cumulative intake](CUMULATIVE_MODELMAKER.md).
