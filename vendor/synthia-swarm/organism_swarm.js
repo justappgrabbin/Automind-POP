@@ -52,8 +52,8 @@ export async function loadRecognizer(readText) {
 }
 
 export class OrganismSwarm {
-  constructor(living, { recognizer = null } = {}) {
-    this.S = living; this.recognizer = recognizer; this.focus = null; this.tick = 0; this.log = [];
+  constructor(living, { recognizer = null, ruleWorld = null, computerWorld = null, messyWorld = null } = {}) {
+    this.S = living; this.S.ruleWorld = ruleWorld ?? this.S.ruleWorld; this.computerWorld = computerWorld; this.messyWorld = messyWorld; this.nextMessy = 1000; this.nextComputer = 2000; this.recognizer = recognizer; this.focus = null; this.tick = 0; this.log = [];
     this.function = primitiveSwarm(new Substrate());          // the function-building side, shared by the formation
     KL.grow(this.S);
   }
@@ -80,8 +80,8 @@ export class OrganismSwarm {
   }
 
   /** One step of the organism. */
-  step({ gossipEvery = 10 } = {}) {
-    this.S.step(); KL.grow(this.S); this.tick++;
+  step({ gossipEvery = 10, elapsedMs = 50 } = {}) {
+    this.S.step(1, elapsedMs); KL.grow(this.S); this.tick++;
     const read = this.readings();
     for (const u of this.S.units) {
       if (u.broken || !u.particle) continue;
@@ -95,6 +95,10 @@ export class OrganismSwarm {
       u.ability = FS.abilityOf(u.lines);
     }
     if (this.tick % gossipEvery === 0) this.gossipWeighted();
+    const visible = this.S.relationships.filter(r=>r.bond?.visible).map(r=>`${r.a}:${r.b}`).join(",");
+    const changed = visible !== this.visibleRelationships; this.visibleRelationships = visible;
+    if (this.messyWorld) { if(changed) this.messyWorld.sync(this.S); while(this.S.elapsedMs >= this.nextMessy) { this.lastMessy = this.messyWorld.tick(this.S); if(this.messyWorld.k.clock % 10 === 0) this.messyWorld.readWorld(); this.nextMessy += 1000; } }
+    if (this.computerWorld) { if(changed) this.computerWorld.sync(this.S); while(this.S.elapsedMs >= this.nextComputer) { this.computerWorld.sync(this.S); this.nextComputer += 2000; } }
     return this;
   }
   /** Gossip where each unit's offers count by how much it takes part in the current focus. */

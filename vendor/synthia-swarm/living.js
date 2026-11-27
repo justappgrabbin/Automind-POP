@@ -135,7 +135,7 @@ const KINDS = ["person", "mover", "attractor", "item"];
 
 export class LivingSwarm {
   constructor({ leader = "Movement", seed = 7 } = {}) {
-    this.leader = leader; this.units = []; this.loose = []; this.t = 0; this.events = [];
+    this.leader = leader; this.units = []; this.loose = []; this.t = 0; this.events = []; this.relationships = []; this.elapsedMs = 0; this.ruleDue = 250; this.ruleWorld = null;
     let s = seed >>> 0; this.rand = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32);
   }
 
@@ -160,16 +160,22 @@ export class LivingSwarm {
   cycle(u) { return 0.5 + 0.5 * Math.sin(2 * Math.PI * (this.t + u.phase) / SETTINGS.CYCLE_PERIOD); }
 
   /** Recompute bonds for everyone near enough to interact. */
-  link(radius = null) {
+  link(radius = null, { ruleWorld = null } = {}) {
+    const records = new Map();
+    const pair = (a,b) => { if (a.id > b.id) [a,b] = [b,a]; const k = `${a.id}:${b.id}`; if (!records.has(k)) records.set(k, {a:a.id,b:b.id,d:Math.hypot(a.x-b.x,a.y-b.y),bond:null,resonance:null,channel:null}); return records.get(k); };
     const U = this.units.filter(u => !u.broken);
     radius ??= Math.min(0.25, 3 / Math.sqrt(U.length || 1), this.image ? 1.6 / this.image.w : 1);   // in a picture the units are a lattice: neighbours are the squares around (Badalov r = 1.6)
     this.radius = radius;
-    for (const u of U) u.bonds = [];
+    for (const u of this.units) u.bonds = [];
     const grid = this.grid = new Map(), key = (x, y) => (Math.floor(x / radius) * 73856093) ^ (Math.floor(y / radius) * 19349663);
     for (const u of U) { const k = key(u.x, u.y); (grid.get(k) ?? grid.set(k, []).get(k)).push(u); }
     for (const a of U) { const gx = Math.floor(a.x / radius), gy = Math.floor(a.y / radius);
       for (let ix = -1; ix <= 1; ix++) for (let iy = -1; iy <= 1; iy++) for (const b of grid.get(((gx + ix) * 73856093) ^ ((gy + iy) * 19349663)) ?? []) {
         if (b.id <= a.id || (this.grow && (!a.target || !b.target))) continue;   /* joiners in transit do not bond until they settle */ const d = Math.hypot(a.x - b.x, a.y - b.y); if (d > radius) continue;
+        pair(a,b).bondCandidate = true; } }
+    if (ruleWorld) ruleWorld.collect(this, pair);
+    this.relationships = [...records.values()].sort((a,b)=>a.a-b.a || a.b-b.b);
+    for (const rec of this.relationships) { if (!rec.bondCandidate) continue; const a=this.units[rec.a], b=this.units[rec.b], d=rec.d;
         const r = bond(a.address, b.address, this.leader), sp = OPS.evaluateSwarmBond(a.address, b.address);
         let via = null;
         if (!r.count && !sp.connectionCount) {          // not compatible as they are: maybe something either acquired opens it
@@ -178,7 +184,9 @@ export class LivingSwarm {
         const e = { a: a.id, b: b.id, ...r, d, spec: sp, connectionCount: sp.connectionCount, level: sp.level, visible: sp.isVisible,
           strength: (r.depth + sp.connectionCount) / 9, via: via ? { acquiredGate: via.gate } : null };
         e.product = computeOnBond(a, b);                // the bond computes: Klein's operator on the two units' Boolean vectors
-        a.bonds.push(e); b.bonds.push(e); } }
+        a.bonds.push(e); b.bonds.push(e); rec.bond = e; }
+    if (ruleWorld) ruleWorld.apply(this, this.relationships);
+    return this.relationships;
   }
   /** Units near (x, y) from the grid built by link(). */
   near(x, y, r) { const R = this.radius ?? 0.25, out = [], gx = Math.floor(x / R), gy = Math.floor(y / R), n = Math.ceil(r / R);
@@ -197,8 +205,12 @@ export class LivingSwarm {
   }
 
   /** One step of life: renewal from flow, decay, movement, attraction, breaking. Every decline records why. */
-  step(dt = 1) {
-    this.t += dt; this.link(); if (this.grow) { let n = 0; for (let r = 0; r < SETTINGS.GROW_ROUNDS; r++) { const k = growTick(this); n += k; if (!k) break; } this.grow.lastRound = n; }
+  step(dt = 1, elapsedMs = 50) {
+    if (!Number.isFinite(elapsedMs) || elapsedMs < 0) throw new RangeError("elapsedMs");
+    this.elapsedMs += elapsedMs;
+    const due = this.ruleWorld && this.elapsedMs >= this.ruleDue;
+    this.t += dt; this.link(null, {ruleWorld: due ? this.ruleWorld : null});
+    if (due) { this.ruleDue += 250; while (this.elapsedMs >= this.ruleDue) { this.link(null, {ruleWorld:this.ruleWorld}); this.ruleDue += 250; } } if (this.grow) { let n = 0; for (let r = 0; r < SETTINGS.GROW_ROUNDS; r++) { const k = growTick(this); n += k; if (!k) break; } this.grow.lastRound = n; }
     if (!this.pinnedLeader) this.leader = OPS.leadingDimension(this.units, this.units.flatMap(u => u.bonds.filter(e => e.a === u.id))).leader;
     for (const u of this.units) { if (u.broken) continue;
       const cyc = this.cycle(u);
@@ -249,6 +261,9 @@ export class LivingSwarm {
         u.broken = true; this.loose.push({ from: u.id, address: u.address, t: this.t });
         this.events.push({ t: this.t, type: "break", unit: u.id, cause: u.decline?.cause ?? "failure" }); }
     }
+    // A unit broken during this step must not leave a committed bond behind.
+    this.relationships = this.relationships.filter(r => !this.units[r.a].broken && !this.units[r.b].broken);
+    for (const u of this.units) u.bonds = u.bonds.filter(e => !this.units[e.a].broken && !this.units[e.b].broken);
     return this;
   }
 
