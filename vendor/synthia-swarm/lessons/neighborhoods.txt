@@ -1,0 +1,12 @@
+Neighborhoods, terrain, and lots
+Source-linked reconstruction (2026-11-26). The original lesson file was not found in the recovered archives. This new lesson describes the actual current host and recognizer, rather than claiming to be the missing original.
+
+A neighborhood is the set of nearby units or cells that a unit can sense. Membership can change as units move. The trained morphogen recognizer uses local neighborhoods, sensed features, and a radius-dependent model to classify each unit's formation. It does not require each unit to know the entire world. Preserve unit identity when the neighborhood changes.
+
+Terrain is the environment's state and constraints. In the existing hostworld.js, the host has a two-dimensional grid, ground row, sky, temperature, clock, particles, passages, and systems. The host exposes observable state rather than a predetermined swarm solution. Boundary cells and closed passages can block movement. The existing GameEngineHost makes a passage in the native world and associates it with a simulator; a learned interaction must satisfy the host's reach condition and change the observed passage state.
+
+A lot is a proposed subdivision of terrain with its own extent, access constraints, occupancy and intended use. Lots are not a native hostworld.js class. Treat them as a design task: represent their boundaries as explicit cells or coordinates and expose permitted actions. Avoid silently changing the underlying host or treating a lot label as proof of accessibility.
+
+Exercise: create two neighborhoods separated by a closed passage, move a unit near the passage, observe the failed crossing, demonstrate an allowed interaction, and verify that the passage becomes traversable. Then test the learned behavior against a different passage. Store the outcome and the original unit identity. A second exercise partitions an empty grid into candidate lots, verifies non-overlap and reachable access, and retains a successful formation only after the host checks pass.
+
+Sources: vendor/synthia-swarm/hostworld.js; gameenginex_host.js; gameenginex_morph.js; organism_swarm.js; codex3/morphogen-swarm-lab/swarm.js and trained-models.js. The lot exercise is a proposal, not a claim of already implemented lot tooling.
