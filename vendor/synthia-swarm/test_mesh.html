@@ -1,0 +1,1 @@
+<script type="module">import {createMesh} from "./mesh.js"; const f=new URLSearchParams(location.search).get("field"); window.PM=[]; window.m=createMesh({field:f,apply:x=>PM.push(x),remove:j=>{window.PM=PM.filter(e=>e.id!==j.id)}});</script>

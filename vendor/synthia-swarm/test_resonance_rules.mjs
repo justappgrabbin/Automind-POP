@@ -1,0 +1,17 @@
+import * as RR from "./resonance_rules.js"; await RR.loadRules();
+let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log((c ? "ok  " : "FAIL") + " " + m); };
+ok(RR.colourRelation(2, 2) === "resonance" && RR.colourRelation(2, 5) === "transference" && RR.colourRelation(2, 3) === "neutral", "colour: same / ±3 / else");
+ok([1, 2, 3, 4, 5, 6].map(RR.transferred).join("") === "456123", "transference 1↔4 2↔5 3↔6");
+ok(RR.canTouch("line", "color") && RR.canTouch("tone", "base") && !RR.canTouch("line", "tone") && !RR.canTouch("color", "base"), "neighbour levels only");
+ok(RR.baseReach(1, 2) === "blocked" && RR.baseReach(1, 4) === "reaches" && RR.baseReach(5, 1) === "reaches" && RR.baseReach(1, 5) === "weak" && RR.baseReach(3, 3) === "resonance", "Personality base pyramid (5 centre, 1-2 diagonal)");
+const outside = RR.contact({ line: 2, color: 3, tone: 4, base: 1 }, { line: 5, color: 3, tone: 4, base: 1 });
+ok(outside.crosses && outside.by.level === "color", "outside: same colour crosses");
+const toneOnlyOut = RR.contact({ line: 1, color: 1, tone: 4 }, { line: 2, color: 2, tone: 4 });
+ok(!toneOnlyOut.crosses && toneOnlyOut.wear === 1, "outside: tone match alone can't cross (tone stays within self) → wear");
+ok(RR.contact({ line: 1, color: 1, tone: 4 }, { line: 2, color: 2, tone: 4 }, { inside: true }).crosses, "inside: tone match crosses");
+const tr = RR.contact({ line: 1, color: 1 }, { line: 2, color: 4 }); ok(tr.crosses && tr.by.blindSpot, "transference crosses but is tagged blind spot");
+const ch = RR.channelBehaviour(58, 18); ok(ch.name === "Judgement" && ch.exchange === "share-one-way" && ch.trigger === "needs-invitation", "18-58 Judgement: collective, projected");
+ok(RR.channelBehaviour(6, 59).exchange === "deal", "59-6 communal = deal");
+ok(RR.roleOf(1, 3)?.name === "Protector/Warrior" && RR.roleOf(6, 3)?.angle === "Left Angle", "roles from the table");
+ok(RR.typeOf({ sacralDefined: false, motorToThroat: false }) === "Supporter", "type from definition");
+console.log(`${pass}/${pass + fail}`); process.exit(fail ? 1 : 0);

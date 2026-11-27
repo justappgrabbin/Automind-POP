@@ -1,0 +1,16 @@
+import * as SC from "./scene.js";
+let pass = 0, fail = 0; const ok = (n, c) => { c ? pass++ : fail++; console.log((c ? "  PASS " : "  FAIL ") + n); };
+const W = 40, H = 30, img = new Uint8ClampedArray(W * H * 4);
+const paint = (x0, y0, x1, y1, c) => { for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const i = (y * W + x) * 4; img.set([...c, 255], i); } };
+paint(0, 0, W, H, [235, 235, 235]); paint(4, 5, 14, 20, [200, 40, 30]); paint(22, 3, 34, 12, [30, 60, 200]); paint(22, 12, 34, 25, [40, 170, 50]);
+ok("Morph3D labels: red, blue, green, bright", SC.labelOf(200, 40, 30) === 5 && SC.labelOf(30, 60, 200) === 7 && SC.labelOf(40, 170, 50) === 6 && SC.labelOf(235, 235, 235) === 3);
+const s = SC.readScene(img, W, H), by = n => s.regions.find(r => r.name === n);
+ok("four regions found (background, red, blue, green)", s.regions.length === 4 && by("warm red") && by("blue") && by("green"));
+const has = (a, rel, b) => s.relations.some(e => e.s === by(a).id && e.rel === rel && e.o === by(b).id);
+ok("red is left of the blue/green column", has("warm red", "left of", "blue"));
+ok("blue sits on green: above, touching", has("blue", "above", "green"));
+const bg = by("bright neutral");
+ok("the background is no longer 'in front of' anything", !s.relations.some(e => e.s === bg.id && /front|on/.test(e.rel)));
+ok("the red block is ON the background (enclosed by it), with its basis", s.relations.some(e => e.s === by("warm red").id && e.rel === "on" && e.o === bg.id && /border/.test(e.basis)));
+ok("the old box version is kept", typeof SC.relationsByBox === "function");
+console.log(`\n${pass} passed, ${fail} failed`); if (fail) process.exit(1);

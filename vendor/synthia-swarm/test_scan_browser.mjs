@@ -1,0 +1,12 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+const p = await b.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message)); await p.setViewport({ width: 412, height: 900 });
+await p.goto("http://localhost:8766/living.html"); await p.evaluate(() => new Promise(r => { const q = indexedDB.deleteDatabase("synthia-shelf"); q.onsuccess = q.onerror = q.onblocked = r; })); await p.reload(); await new Promise(r => setTimeout(r, 2000));
+await p.evaluate(() => new Promise(r => { const q = indexedDB.deleteDatabase("synthia-shelf"); q.onsuccess = q.onerror = q.onblocked = r; })); await p.reload(); await new Promise(r => setTimeout(r, 1500)); const inp = await p.$("#books"); await inp.uploadFile("/tmp/scanbook.pdf"); await p.select("#bookfield", "Design");
+await p.click("#shelve"); await p.waitForFunction(() => /gates found/.test(document.getElementById("shelfout").innerText), { timeout: 180000 });
+console.log("SHELF:", await p.$eval("#shelfout", e => e.innerText));
+await p.click("#teach"); await new Promise(r => setTimeout(r, 2000));
+console.log("TEACH:", await p.$eval("#shelfout", e => e.innerText));
+const k = await p.evaluate(async () => { const s = await import("/bookshelf.js"); const B = await s.shelf(); return { gates: Object.keys(B[0].sections), g18: B[0].sections[18] }; });
+console.log(JSON.stringify(k)); await p.reload(); await new Promise(r => setTimeout(r, 2000)); console.log("AFTER RELOAD:", await p.$eval("#shelfout", e => e.innerText));
+console.log("errors:", errs); await b.close();

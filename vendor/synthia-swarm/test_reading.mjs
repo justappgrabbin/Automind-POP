@@ -1,0 +1,20 @@
+// Every unit reads with its own AUTOLING: patterns from text, spread by contact, understanding measured on a new file.
+import { LivingSwarm } from "./living.js"; import * as RD from "./reading.js";
+let pass = 0, fail = 0; const ok = (n, c) => { c ? pass++ : fail++; console.log((c ? "  PASS " : "  FAIL ") + n); };
+const S = new LivingSwarm({ seed: 4 }); for (let i = 0; i < 60; i++) S.add({ gate: 1 + i, line: 1 + i % 6, dimension: "Being" }, "person", 0.3 + (i % 8) * 0.05, 0.3 + Math.floor(i / 8) * 0.05);
+S.link(0.12);
+ok("a line's slots are abstracted from what the file repeats", RD.patternOf("import x from 'y'", RD.frameOf(["import x from 'y'", "import z from 'w'"])) === "import $ from ' $ '");
+const a = { path: "a.js", text: "import x from 'y';\nimport z from 'w';\nexport function go() { return fetch('u'); }\nexport function stop() { return null; }\nconst q = 1;" };
+const r1 = RD.readFile(S, a);
+console.log("    first file:", r1);
+ok("the file was read across units (each its own share)", S.units.filter(u => u.grammar?.read).length === r1.lines);
+ok("repeated structure is understood on first reading; one-offs are gaps", r1.gaps.length >= 1 && r1.gaps.some(g => /const q/.test(g.line)) && !r1.gaps.some(g => /import/.test(g.line)));
+for (let k = 0; k < 4; k++) RD.gossipGrammar(S);
+ok("patterns spread by contact to units that never read them", S.units.filter(u => !u.grammar?.read && u.grammar?.patterns.size).length > 0);
+const b = { path: "b.js", text: "import k from 'm';\nexport function run() { return go(); }\nlet zz = 9;" };
+const r2 = RD.readFile(S, b);
+console.log("    second file:", { understood: r2.understood, heldBefore: r2.heldBefore, gaps: r2.gaps.map(g => g.line) });
+ok("a NEW file is understood from what the swarm learned before", r2.heldBefore >= 1 && r2.gaps.every(g => !/import/.test(g.line)));
+ok("the swarm can answer 'can you say this?' for a line it has never seen", RD.whoCanSay(S, "import p from 'q';").length > 0);
+ok("and cannot for structure it never met", RD.whoCanSay(S, "while (true) { break; }").length === 0);
+console.log(`\n${pass} passed, ${fail} failed`); if (fail) process.exit(1);

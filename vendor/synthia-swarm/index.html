@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Synthia organism</title>
+<style>
+ body{margin:0;background:#0d0d12;color:#ddd;font:13px/1.4 system-ui,sans-serif;display:flex;flex-direction:column;height:100vh}
+ header{padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #222}
+ button,input{background:#1b1b24;color:#ddd;border:1px solid #333;border-radius:6px;padding:6px 10px}
+ main{flex:1;display:flex;min-height:0} canvas{flex:1;min-width:0} aside{width:340px;overflow:auto;padding:10px;border-left:1px solid #222}
+ .k{color:#8a8aa0} pre{white-space:pre-wrap;font-size:11px;margin:4px 0}
+ @media(max-width:700px){main{flex-direction:column}aside{width:auto;height:40%}}
+</style></head><body>
+<header>
+ <button id="live">Live</button><button id="deep">5 deep: off</button><select id="lead"><option>Movement</option><option>Evolution</option><option>Being</option><option>Design</option><option>Space</option></select><button id="sound">Sound off</button>
+ <input id="text" value="BHANTUGH" size="12"><button id="say">Hear</button><span id="status" class="k"></span>
+</header>
+<main><canvas id="c"></canvas><aside id="info">Tap an agent.</aside></main>
+<script type="module">
+// The renderer OBSERVES the organism: it reads state on events and never writes it.
+import { Organism } from "./organism.js";
+import { encodeText } from "./encoding.js";
+const bundle = await (await fetch("./trained_swarm.json")).json();
+const lons = (await (await fetch("./check_chart.json")).json()).lons;
+const org = new Organism(bundle).loadChart(lons, 100);
+const cv = document.getElementById("c"), cx = cv.getContext("2d"), info = document.getElementById("info"), st = document.getElementById("status");
+let deep = false, L = null, pick = null, running = false, audio = null, voices = [];
+const pos = a => { const th = (90 - a.address.longitude) * Math.PI / 180, R = (a.address.side === "Personality" ? 0.42 : 0.32) * Math.min(cv.width, cv.height);
+  return [cv.width / 2 + R * Math.cos(th), cv.height / 2 - R * Math.sin(th)]; };
+const RING = ["Movement","Evolution","Being","Design","Space"];
+function ringPos(layer, u) { const R = (0.12 + 0.08 * layer.depth) * Math.min(cv.width, cv.height), th = u.angle - Math.PI / 2;
+  return [cv.width / 2 + R * Math.cos(th), cv.height / 2 + R * Math.sin(th)]; }
+function drawDeep() {
+  cv.width = cv.clientWidth * devicePixelRatio; cv.height = cv.clientHeight * devicePixelRatio; cx.clearRect(0, 0, cv.width, cv.height);
+  const s = devicePixelRatio; L = org.layers(document.getElementById("lead").value);
+  for (const layer of L) {
+    cx.strokeStyle = "rgba(255,255,255,0.07)"; cx.beginPath(); const R = (0.12 + 0.08 * layer.depth) * Math.min(cv.width, cv.height);
+    cx.arc(cv.width / 2, cv.height / 2, R, 0, 7); cx.stroke();
+    cx.fillStyle = "#8a8aa0"; cx.font = `${10 * s}px system-ui`; cx.fillText(`${layer.depth} ${layer.dimension} · ${layer.order} · ${layer.link}`, cv.width / 2 + 4, cv.height / 2 - R - 3);
+    if (layer.dimension !== "Space") for (const r of layer.relations) { const [x1, y1] = ringPos(layer, layer.units[r.from]), [x2, y2] = ringPos(layer, layer.units[r.to]);
+      cx.strokeStyle = `rgba(200,200,255,${0.08 + 0.6 * Math.min(1, r.weight)})`; cx.lineWidth = s; cx.beginPath(); cx.moveTo(x1, y1); cx.lineTo(x2, y2); cx.stroke(); }
+    for (const u of layer.units) { const [x, y] = ringPos(layer, u), c = u.expression.color, k = 9 * s;
+      cx.fillStyle = `hsl(${c.h} ${c.s}% ${c.l}%)`; cx.beginPath();
+      u.expression.geometry.forEach((v, n) => n ? cx.lineTo(x + v.x * k, y + v.y * k) : cx.moveTo(x + v.x * k, y + v.y * k)); cx.closePath(); cx.fill();
+      if (org.agents[u.agent] === pick) { cx.strokeStyle = "#fff"; cx.lineWidth = 1.5 * s; cx.stroke(); } } }
+  const sp = org.space, f = sp ? sp.formations() : null;
+  st.textContent = `lead ${document.getElementById("lead").value} · words ${sp ? sp.words.size : 0} · neural nets ${f ? f.nets.length : 0} · mesh bonds ${f ? f.mesh : 0} · interactions ${org.log.length}`;
+}
+function draw() { if (deep) return drawDeep();
+  cv.width = cv.clientWidth * devicePixelRatio; cv.height = cv.clientHeight * devicePixelRatio; cx.clearRect(0, 0, cv.width, cv.height);
+  const A = org.agents, s = devicePixelRatio;
+  for (let i = 0; i < A.length; i++) for (let j = i + 1; j < A.length; j++) if (org.A[i][j]) {
+    const [x1, y1] = pos(A[i]), [x2, y2] = pos(A[j]); cx.strokeStyle = `rgba(200,200,255,${0.06 + 0.5 * org.W[i][j]})`; cx.lineWidth = s * (0.5 + 3 * org.W[i][j]);
+    cx.beginPath(); cx.moveTo(x1, y1); cx.lineTo(x2, y2); cx.stroke(); }
+  for (const a of A) { if (!a.expression) continue; const [x, y] = pos(a), c = a.expression.color, g = a.expression.geometry, k = 22 * s;
+    cx.fillStyle = `hsl(${c.h} ${c.s}% ${c.l}%)`; cx.beginPath();
+    g.forEach((v, n) => n ? cx.lineTo(x + v.x * k, y + v.y * k) : cx.moveTo(x + v.x * k, y + v.y * k)); cx.closePath(); cx.fill();
+    if (a === pick) { cx.strokeStyle = "#fff"; cx.lineWidth = 2 * s; cx.stroke(); } }
+  const cs = org.consensus(); st.textContent = `swarm reads: ${cs.majority} (${Math.round(cs.agree * 100)}% agree) · rule: ${org.trueType >= 0 ? ["Reflector","Projector","Manifestor","Generator","Manifesting Generator"][org.trueType] : ""} · interactions ${org.log.length}`;
+}
+function show(a) { if (!a) return; const d = a.dims, e = a.expression;
+  info.innerHTML = `<b>${a.addressString}</b><div class="k">${a.address.side} · reads ${a.learned.pred}</div>` +
+    `<pre>${Object.entries(d).map(([k, v]) => `${k} (${v.wh}) · ${v.function.feature}\n  function ${v.function.value.toFixed(3)}  visual ${v.visual.value.toFixed(3)}  activity ${v.visual.activity.toFixed(3)}\n  ${v.function.sentence.halted ? '(Rule O: ' + v.function.sentence.reason + ')' : v.function.sentence.text + (v.function.sentence.expression ? '  · ' + v.function.sentence.expression : '')}`).join("\n")}\nWHO (Space reads the four): coherence ${a.who.coherence.toFixed(3)}</pre>` +
+    (L ? `<pre>${L.map(l => { const u = l.units[org.agents.indexOf(a)]; return `${l.depth} ${l.dimension} [${l.order}] position ${u.position}`; }).join("\n")}</pre>` : "") + `<div class="k">${e.sound.field} · centroid ${e.sound.centroid.toFixed(1)} Hz</div>` +
+    `<pre>${a.history.slice(-5).map(h => `${h.action} → reward ${h.reward.toFixed(3)}`).join("\n")}</pre>`; }
+function sing() { if (!audio || !pick) return; pick.expression.sound.voices.forEach((v, i) => {
+  voices[i].o.frequency.setTargetAtTime(v.freq, audio.currentTime, 0.05); voices[i].g.gain.setTargetAtTime(v.amp * 0.3, audio.currentTime, 0.08); }); }
+org.on(ev => { if (ev.type === "tick") { draw(); show(pick); sing(); } });
+let digestClock = 0;
+cv.onclick = ev => { const r = cv.getBoundingClientRect(), x = (ev.clientX - r.left) * devicePixelRatio, y = (ev.clientY - r.top) * devicePixelRatio;
+  if (deep && L) { let best = [null, 1e9]; for (const layer of L) for (const u of layer.units) { const [ax, ay] = ringPos(layer, u), d = Math.hypot(ax - x, ay - y); if (d < best[1]) best = [org.agents[u.agent], d]; } pick = best[0]; show(pick); return; }
+  pick = org.agents.reduce((b, a) => { const [ax, ay] = pos(a), d = Math.hypot(ax - x, ay - y); return d < b[1] ? [a, d] : b; }, [null, 1e9])[0]; show(pick); };
+document.getElementById("live").onclick = () => { running = !running; };
+document.getElementById("deep").onclick = e => { deep = !deep; e.target.textContent = deep ? "5 deep: on" : "5 deep: off"; if (deep) org.digest(1); };
+document.getElementById("lead").onchange = e => org.lead(e.target.value);
+document.getElementById("say").onclick = () => org.hear(encodeText(document.getElementById("text").value));
+document.getElementById("sound").onclick = e => { if (!audio) { audio = new AudioContext();
+  voices = [...Array(6)].map(() => { const o = audio.createOscillator(), g = audio.createGain(); g.gain.value = 0; o.connect(g).connect(audio.destination); o.start(); return { o, g }; });
+  e.target.textContent = "Sound on"; } else { audio.close(); audio = null; e.target.textContent = "Sound off"; } };
+let last = performance.now();
+(function loop(t) { const dt = Math.min(0.1, (t - last) / 1000); last = t; if (running && Math.random() < 0.3) org.live(1); if (deep && (digestClock += dt) > 0.5) { digestClock = 0; org.digest(1); } org.tick(dt); requestAnimationFrame(loop); })(last);
+pick = org.agents[0];
+</script></body></html>

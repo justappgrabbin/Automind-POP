@@ -1,0 +1,12 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+const p = await b.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message)); await p.setViewport({ width: 412, height: 900 });
+await p.goto("http://localhost:8766/living.html"); await p.evaluate(() => new Promise(r => { const q = indexedDB.deleteDatabase("synthia-shelf"); q.onsuccess = q.onerror = q.onblocked = r; })); await p.reload(); await new Promise(r => setTimeout(r, 2000));
+const inp = await p.$("#books"); await inp.uploadFile("/tmp/testbook.pdf"); await p.select("#bookfield", "Design");
+await p.click("#shelve"); await p.waitForFunction(() => /gates found/.test(document.getElementById("shelfout").innerText), { timeout: 60000 });
+console.log("SHELF:", await p.$eval("#shelfout", e => e.innerText));
+await p.click("#teach"); await new Promise(r => setTimeout(r, 2000));
+console.log("TEACH:", await p.$eval("#shelfout", e => e.innerText));
+const k = await p.evaluate(() => { const U = window.__S.units, d = U.filter(u => u.address?.dimension === "Design"); return { design: d.length, designRead: d.filter(u => (u.grammar?.read ?? 0) > 0).length, otherRead: U.filter(u => u.address?.dimension !== "Design" && (u.grammar?.read ?? 0) > 0).length, gate18: U.filter(u => u.address?.gate === 18 && u.address?.dimension === "Design").map(u => [...(u.grammar?.patterns?.keys() ?? [])].slice(0, 2)) }; });
+console.log(JSON.stringify(k)); await p.reload(); await new Promise(r => setTimeout(r, 2000)); console.log("AFTER RELOAD:", await p.$eval("#shelfout", e => e.innerText));
+console.log("errors:", errs); await b.close();

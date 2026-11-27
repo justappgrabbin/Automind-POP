@@ -1,0 +1,14 @@
+import fs from "fs"; import { setGateEngineData, gateFunction, lineExpression, readUnit } from "./gate_engine.js";
+setGateEngineData(JSON.parse(fs.readFileSync("vocabulary.json")), JSON.parse(fs.readFileSync("bhantugh_rules.json")));
+let pass = 0, fail = 0; const ok = (n, c) => { c ? pass++ : fail++; console.log((c ? "  PASS " : "  FAIL ") + n); };
+const f1 = gateFunction(1), f2 = gateFunction(2), f3 = gateFunction(3);
+ok("gate 1 = Heaven over Heaven", f1.inner === "Heaven" && f1.outer === "Heaven");
+ok("gate 2 = Earth over Earth", f2.inner === "Earth" && f2.outer === "Earth");
+ok("gate 3 (Difficulty at the Beginning) = Thunder below, Water above", f3.inner === "Thunder" && f3.outer === "Water");
+ok("all 64 gates get a function", Array.from({ length: 64 }, (_, i) => gateFunction(i + 1)).every(f => f.does && f.op));
+ok("gate words attached (keynote, center)", f1.keynote && f1.center);
+const e = lineExpression({ gate: 1, line: 3, color: 2, tone: 5, base: 1 });
+ok("line fixed mode + gate's own line name", e.mode === "trial and error" && e.lineName === "Energy");
+ok("swayed by colour, tone, base", e.sway.motivation?.response === "Hope" && e.sway.sense?.sense === "Feeling" && e.sway.ground?.dimension === "Movement");
+console.log("  ", readUnit({ gate: 3, line: 1, color: 5, tone: 2, base: 3 }).sentence);
+console.log(`\n${pass} passed, ${fail} failed`);

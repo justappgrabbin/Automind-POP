@@ -1,0 +1,15 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+const p = await b.newPage(), errs = []; p.on("pageerror", e => errs.push(e.message));
+await p.goto("http://127.0.0.1:8901/living.html"); await new Promise(r => setTimeout(r, 12000));
+await p.evaluate(() => localStorage.setItem("synthia-klein", JSON.stringify(__S ? JSON.parse(localStorage.getItem("synthia-klein")) : null)));
+const facesParent = await p.evaluate(() => localStorage.getItem("synthia-faces")?.length ?? 0);
+await p.type("#childx", "be gentle"); await p.click("#child"); await new Promise(r => setTimeout(r, 4000));
+const out = await p.$eval("#childout", e => e.textContent); console.log("parent:", out.slice(0, 400));
+const url = await p.$eval("#childout a", a => a.href);
+const c = await b.newPage(); c.on("pageerror", e => errs.push("child: " + e.message));
+await c.goto(url); await new Promise(r => setTimeout(r, 10000));
+const cout = await c.$eval("#childout", e => e.textContent); console.log("child:", cout);
+const iso = await c.evaluate(() => ({ title: document.title, ownFaces: localStorage.getItem("synthia-faces")?.length ?? 0, units: __S?.units?.length }));
+console.log("child state:", JSON.stringify(iso), "parent faces bytes:", facesParent);
+console.log("errors:", errs); let ok = out.includes("child 1") && cout.startsWith("I am a child") && !errs.length; console.log(ok ? "PASS" : "FAIL"); await b.close();

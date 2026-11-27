@@ -1,0 +1,16 @@
+import { readHealth, compareHealth } from "./health.js";
+import * as M from "./placememory.js";
+const mem = M.newMemory();
+const app = { files: [{ path:"shop/cart.js", text:`import { price } from "./price.js";\nexport function total(items){ return items.map(price).length; }`}] };
+const h = readHealth(app);
+const teacher = async () => "1. cashier | add price.js, export price\n2. storyteller | narrate the shop";
+const ideas = await M.ask(mem, app, h, teacher); console.log("teacher ideas", ideas);
+const fixed = { files: [...app.files, { path:"shop/price.js", text:"export function price(i){ return i.p; }"}] };
+M.remember(mem, app, { ...ideas[0], before:h, after:readHealth(fixed) });
+M.remember(mem, app, { ...ideas[1], before:h, after:h });
+const similar = { files: [{ path:"store/cart.js", text:`import { price } from "./price.js";\nexport function total(x){ return 0; }`}] };
+console.log("recall", M.recall(mem, similar).map(e=>[e.role,e.sim.toFixed(2),e.delta]));
+console.log("familiar", M.familiarity(mem, similar).toFixed(2), "asks teacher again:", (await M.ask(mem, similar, readHealth(similar), teacher)).length);
+const world = { about:"a plaza with a market", probe:()=>({signs:[{name:"nobody can reach the market"}]}) };
+console.log("world vs app sim", M.recall(mem, world).length, "familiar", M.familiarity(mem, world));
+console.log("roundtrip", M.fromJSON(M.toJSON(mem)).entries.length);

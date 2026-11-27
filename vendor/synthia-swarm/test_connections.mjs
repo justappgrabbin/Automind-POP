@@ -1,0 +1,10 @@
+import { loadRules, connectionsOf, channelBehaviour } from "./resonance_rules.js";
+import fs from "fs"; await loadRules(new URL("./bhantugh_rules.json", import.meta.url)).catch(()=>{});
+let ok=0,n=0; const t=(c,m)=>{n++; if(c)ok++; else console.log("FAIL",m)};
+const k=(a,b,ch)=>connectionsOf(a,b).find(c=>c.channel===ch)?.kind;
+t(k([34],[57],"34-57")==="electromagnetic","em");
+t(k([34,57],[1],"34-57")==="dominance","dom");
+t(k([34,57],[57],"34-57")==="compromise","comp");
+t(k([34,57],[34,57],"34-57")==="companionship","comp2");
+t(channelBehaviour(34,57)?.type==="Generated","type filled");
+console.log(`connections ${ok}/${n}`);
