@@ -1,0 +1,41 @@
+// Tests A–D from the user's assignment, run on the ORGANISM (OrganismSwarm on LivingSwarm units), not a side pipeline.
+import { LivingSwarm } from "./living.js"; import { OrganismSwarm } from "./organism_swarm.js"; import { World } from "./hostworld.js";
+import { enter } from "./morphogenesis.js"; import { worldHost, appHost } from "./hosts.js"; import { readFileSync } from "node:fs";
+let pass = 0, fail = 0; const ok = (n, c) => { c ? pass++ : fail++; console.log((c ? "  PASS " : "  FAIL ") + n); };
+const S = new LivingSwarm({ seed: 3 }), D = ["Movement", "Evolution", "Being", "Design"];
+for (let i = 0; i < 48; i++) S.add({ gate: 1 + i, line: 1 + i % 6, color: 1 + i % 6, tone: 1 + i % 6, base: 1 + i % 5, dimension: D[i % 4] }, "person", 0.3 + (i % 8) * 0.05, 0.3 + Math.floor(i / 8) * 0.05);
+const O = new OrganismSwarm(S); for (let t = 0; t < 5; t++) O.step();
+const show = r => r.steps.forEach(s => console.log("     ", JSON.stringify(s).slice(0, 230)));
+const PAL = [[20, 20, 20], [200, 40, 30], [40, 170, 60], [40, 80, 220], [230, 200, 40], [235, 235, 245]];
+const bright = c => (c[0] + c[1] + c[2]) / 3 > 200, reddish = c => c[0] > 150 && c[1] < 90 && c[2] < 90;
+const mk = (o) => { const W = new World(o); W.palette = PAL; return W; };
+
+console.log("Test A — morphing (world host)");
+const A = worldHost(mk({ name: "cold-valley", temperature: -5 }), { measure: W => { let n = 0; for (let x = 0; x < W.w; x++) if (bright(W.cells[(W.h - 1) * W.w + x])) n++; return W.temperature < 0 ? n / W.w : 1; } });
+const rA = enter(O, A); show(rA); const sA = n => rA.steps.filter(s => s.step === n).at(-1);
+ok("A: the host's check failed before the swarm came in", sA("enter").checkWithout < 0.5);
+ok("A: the organism constructed it (units first, builder only as fallback)", ["units", "builder"].includes(sA("construct").by) && sA("construct").executions >= 1);
+ok("A: named swarm units carried the formation (dimension recorded: " + sA("organize").units.map(u => u.dimension).join(",") + ")", sA("organize").units.length >= 1 && sA("organize").units.every(u => typeof u.unit === "number"));
+console.log("Test B — reproduction");
+ok("B: a descendant was cloned and housed in the host as one of its systems", A.world.systems.length === 1 && sA("clone").standalone);
+ok("B: with the original swarm extracted, the host still meets its own check", sA("extract").checkWithSwarmGone >= 0.9 && sA("extract").unitsStillCarrying === 0);
+console.log("Test C — transfer");
+const A2 = worldHost(mk({ name: "high-pass", w: 30, h: 24, temperature: -12 }), A.world.checks[0]);
+const execFresh = sA("construct").executions;
+const rC = enter(O, A2); show(rC); const sC = n => rC.steps.filter(s => s.step === n).at(-1);
+ok("C: in a new world with the same need it was met again", rC.ok);
+ok(`C: reuse is cheaper in the new world — ${sA("construct").toFirst} tries the first time, ${sC("construct").toFirst} now (recalled: ${sC("construct").recalled})`, sC("construct").recalled && sC("construct").toFirst < sA("construct").toFirst);
+const A3 = worldHost(mk({ name: "red-wall", temperature: 20 }), { measure: W => { let n = 0; for (let y = 0; y < W.h - 1; y++) if (reddish(W.cells[y * W.w])) n++; return n / (W.h - 1); } });
+const rC2 = enter(O, A3); show(rC2);
+ok("C: a different need in a world is still constructed (experience doesn't block new function)", rC2.ok);
+console.log("Test D — generality (same enter(), an app host)");
+const app = appHost([{ path: "app.js", text: "import { xor } from './logic.js';\nexport function f(a, b) { return xor(a, b); }\n" },
+  { path: "t.js", text: "import { xor } from './logic.js';\nassert(xor(0,0) === 0);\nassert(xor(0,1) === 1);\nassert(xor(1,0) === 1);\nassert(xor(1,1) === 0);\n" }]);
+const rD = enter(O, app); show(rD);
+ok("D: the same cycle grew the missing function into the app and the app runs without the swarm", rD.ok && rD.steps.find(s => s.step === "extract").checkWithSwarmGone === 1);
+const app2 = appHost([{ path: "t.js", text: "import { onlyBoth } from './g.js';\nassert(onlyBoth(1,1) === 1);\nassert(onlyBoth(1,0) === 0);\nassert(onlyBoth(0,1) === 0);\nassert(onlyBoth(0,0) === 0);\n" }]);
+const rD2 = enter(O, app2); show(rD2);
+const planD2 = rD2.steps.find(s => s.step === "act+evaluate").plan;
+ok("D: AND (no such primitive) was composed from several steps (" + planD2.join(" → ") + ")", rD2.ok && planD2.length > 1 && !planD2.includes("and"));
+ok("the organism code names no task", !/snow|weather|xor\(|onlyBoth|wall/i.test(readFileSync("./morphogenesis.js", "utf8")));
+console.log(`\n${pass} passed, ${fail} failed`); if (fail) process.exit(1);

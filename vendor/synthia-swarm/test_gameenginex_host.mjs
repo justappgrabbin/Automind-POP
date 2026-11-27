@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {LivingSwarm} from './living.js';import {SwarmKlein} from './klein_bridge.js';import {MessyWorld} from './messy_world.js';import {GameEngineHost} from './gameenginex_host.js';import * as KL from './klein_local.js';
+const S=new LivingSwarm();const u=S.add({gate:1,line:1,color:1,tone:1,base:1,dimension:'Movement'},'person');const K=new SwarmKlein(),M=new MessyWorld(),H=new GameEngineHost(S,K,M);
+H.passage('houseA',2,2);H.passage('houseB',6,2);H.place(u,1,2);
+assert.equal(H.achieve(u,'houseA','open').status,'needs-teaching');assert.equal(H.move(u,1,0),'blocked');
+H.teach('A house has a door. Interact with a door to open it.');assert.equal(H.observe('houseA').state,'closed');
+assert.equal(H.execute(u,'houseA','interact').after,'open');assert.equal(H.move(u,1,0),'moved');assert.equal(H.agent(u).getState().position.x,2);
+assert.equal(KL.expect(S,u,'interact','door').result,'open');assert.equal(K.canLeadTo('interact','open'),true);
+H.place(u,5,2);assert.equal(H.achieve(u,'houseB','open').status,'achieved');assert.equal(M.query({s:'houseB',p:'state'})[0].o,'open');assert.equal(H.move(u,1,0),'moved');
+const K2=new SwarmKlein();K2.import(K.export());const S2=new LivingSwarm();const u2=S2.add({gate:2,line:2,color:1,tone:1,base:1,dimension:'Movement'},'person');const H2=new GameEngineHost(S2,K2,new MessyWorld());H2.passage('houseC',3,2);H2.place(u2,2,2);assert.equal(H2.achieve(u2,'houseC','open').status,'achieved');
+console.log('PASS: unknown goal stops; text alone does not execute; collision before instruction; demonstrated action; movement after opening; Klein culture + dependency; transfer to unseen door; MESSY state; restored Klein memory transfer.');
