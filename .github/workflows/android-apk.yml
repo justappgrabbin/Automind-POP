@@ -13,7 +13,7 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Prepare original web assets and native Android launcher
@@ -41,6 +41,184 @@ jobs:
                   continue
               if path.suffix not in ('.js','.mjs','.html'): continue
               s = path.read_text(encoding='utf-8')
+              s = re.sub(r'(?m)^\s*//.*
+              refs = re.findall(r'''(?:\bfrom\s*|\bimport\s*|\bsrc\s*=\s*|\bfetch\(\s*)["'](\./[^"']+)["']''', s)
+              for ref in refs:
+                  target = path.parent/ref.split('?')[0].split('#')[0]
+                  if target.suffix in ('.js','.mjs','.json','.html','.css'):
+                      todo.append(target)
+          report = '\n'.join(sorted(missing))
+          Path('apk/assets/swarm-missing.txt').write_text(report)
+          print('Missing swarm dependencies:', report or 'none detected', sep='\n')
+          if missing: raise SystemExit('Refusing APK release: unresolved swarm dependencies')
+          PY
+          cat > apk/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.synthai.automindpop.preview" android:versionCode="1" android:versionName="0.1-preview">
+            <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
+            <application android:label="AutoMind POP Preview" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false">
+              <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden">
+                <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+              </activity>
+            </application>
+          </manifest>
+          EOF
+          cat > apk/MainActivity.java <<'EOF'
+          package org.synthai.automindpop.preview;
+          import android.app.*;
+          import android.os.Bundle;
+          import android.content.*;
+          import android.net.Uri;
+          import android.webkit.*;
+          import android.widget.*;
+          import java.io.*;
+          import java.util.*;
+          import java.nio.charset.StandardCharsets;
+
+          public class MainActivity extends Activity {
+            private static final String ROOT="https://appassets.androidplatform.net";
+            private WebView web;
+            private ValueCallback<Uri[]> chooser;
+            private String missing;
+            private WebResourceResponse response(String type,int code,String body) {
+              return new WebResourceResponse(type,"UTF-8",code,code==200?"OK":code==503?"Unavailable":"Not Found",Collections.emptyMap(),new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
+            }
+            private String mime(String path) {
+              if(path.endsWith(".html"))return "text/html";
+              if(path.endsWith(".js")||path.endsWith(".mjs"))return "text/javascript";
+              if(path.endsWith(".json"))return "application/json";
+              if(path.endsWith(".css"))return "text/css";
+              if(path.endsWith(".wasm"))return "application/wasm";
+              if(path.endsWith(".svg"))return "image/svg+xml";
+              if(path.endsWith(".png"))return "image/png";
+              if(path.endsWith(".md")||path.endsWith(".txt"))return "text/plain";
+              return "application/octet-stream";
+            }
+            private WebResourceResponse local(Uri u) {
+              if(!"https".equals(u.getScheme())||!"appassets.androidplatform.net".equals(u.getHost()))return response("text/plain",404,"External network disabled in preview");
+              String p=u.getPath();
+              if(p==null||p.contains("..")||p.contains("\\"))return response("text/plain",404,"Invalid asset");
+              if(p.equals("/api/personal-source")){
+                String g=u.getQueryParameter("group"), n=u.getQueryParameter("name");
+                if(n==null||!n.matches("[a-zA-Z0-9_-]+"))return response("text/plain",404,"Invalid source");
+                if("vault".equals(g))p="/vendor/personal/mylife/templates/"+n+".md";
+                else if("coach".equals(g))p="/vendor/personal/sage-coach/skills/"+n+"/SKILL.md";
+                else return response("text/plain",404,"Source unavailable");
+              }else if(p.startsWith("/api/"))return response("application/json",503,"{\"ok\":false,\"error\":\"Node/Python/Docker mission runtime is not included in this Android preview\"}");
+              try{return new WebResourceResponse(mime(p),"UTF-8",getAssets().open(p.substring(1)));}
+              catch(Exception ex){return response("text/plain",404,"Asset not present");}
+            }
+            @Override public void onCreate(Bundle state){
+              super.onCreate(state);
+              try(InputStream in=getAssets().open("swarm-missing.txt"); ByteArrayOutputStream out=new ByteArrayOutputStream()){
+                byte[] buf=new byte[4096];int n;while((n=in.read(buf))!=-1)out.write(buf,0,n);missing=out.toString("UTF-8");
+              }catch(Exception e){missing="Dependency audit unavailable";}
+              LinearLayout base=new LinearLayout(this);base.setOrientation(LinearLayout.VERTICAL);
+              TextView label=new TextView(this);label.setText("AutoMind POP • Android preview — offline workspace; server runtime not included");label.setPadding(16,12,16,12);base.addView(label);
+              LinearLayout nav=new LinearLayout(this);
+              Button personal=new Button(this);personal.setText("Workspace");nav.addView(personal,new LinearLayout.LayoutParams(0,-2,1));
+              Button swarm=new Button(this);swarm.setText("Synthia swarm");nav.addView(swarm,new LinearLayout.LayoutParams(0,-2,1));
+              base.addView(nav);
+              web=new WebView(this);base.addView(web,new LinearLayout.LayoutParams(-1,0,1));setContentView(base);
+              WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(false);s.setAllowContentAccess(false);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+              web.setWebViewClient(new WebViewClient(){
+                @Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest r){return local(r.getUrl());}
+                @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return !ROOT.equals(r.getUrl().getScheme()+"://"+r.getUrl().getHost());}
+              });
+              web.setWebChromeClient(new WebChromeClient(){
+                @Override public boolean onShowFileChooser(WebView v,ValueCallback<Uri[]> cb,FileChooserParams params){
+                  if(chooser!=null)chooser.onReceiveValue(null);chooser=cb;
+                  try{startActivityForResult(params.createIntent(),42);return true;}catch(Exception e){chooser.onReceiveValue(null);chooser=null;return true;}
+                }
+              });
+              personal.setOnClickListener(v->web.loadUrl(ROOT+"/web/portable.html"));
+              swarm.setOnClickListener(v->{
+                if(missing.trim().isEmpty())web.loadUrl(ROOT+"/vendor/synthia-swarm/living.html");
+                else new AlertDialog.Builder(this).setTitle("Swarm source incomplete on this branch").setMessage("Original swarm source is bundled, but its interface cannot initialize until these dependencies are restored:\n\n"+missing).setPositiveButton("OK",null).show();
+              });
+              web.loadUrl(ROOT+"/web/portable.html");
+            }
+            @Override protected void onActivityResult(int request,int result,Intent data){
+              super.onActivityResult(request,result,data);
+              if(request==42&&chooser!=null){chooser.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result,data));chooser=null;}
+            }
+            @Override public void onBackPressed(){if(web.canGoBack())web.goBack();else super.onBackPressed();}
+          }
+          EOF
+      - name: Verify packaged workspace and live swarm in Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --ignore-scripts playwright
+          npx playwright install --with-deps chromium
+          cat > apk-smoke.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import { createServer } from 'node:http';
+          import { readFile } from 'node:fs/promises';
+          import { resolve, extname } from 'node:path';
+          const root=resolve('apk/assets');
+          const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.css':'text/css','.wasm':'application/wasm','.svg':'image/svg+xml','.png':'image/png'};
+          const server=createServer(async(req,res)=>{
+            try {
+              const path=resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));
+              if(!path.startsWith(root+'/'))throw Error('invalid path');
+              const data=await readFile(path);res.writeHead(200,{'Content-Type':types[extname(path)]||'application/octet-stream'});res.end(data);
+            } catch {res.writeHead(404);res.end('Missing asset');}
+          });
+          await new Promise(r=>server.listen(0,'127.0.0.1',r));
+          const url='http://127.0.0.1:'+server.address().port;
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:411,height:917},isMobile:true,hasTouch:true});
+            const errors=[],missing=[];
+            page.on('pageerror',e=>errors.push(String(e)));
+            page.on('response',r=>{if(r.status()>=400&&r.url().startsWith(url)&&r.request().resourceType()!=='image')missing.push(r.status()+' '+r.url());});
+            await page.route('**/*',r=>r.request().url().startsWith(url)?r.continue():r.abort());
+            await page.goto(url+'/web/portable.html');
+            await page.waitForFunction(()=>document.querySelector('#docSelect')?.options.length>0,{},{timeout:15000});
+            await page.screenshot({path:'apk/out/workspace-browser.png'});
+            await page.goto(url+'/vendor/synthia-swarm/living.html',{waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.__S?.units?.length>0&&window.__gamexBridge&&window.__FA&&window.__CW,{},{timeout:45000});
+            await page.locator('[data-panel="gamex"]').click();
+            await page.locator('#gamex-sync').click();
+            const snapshot=JSON.parse(await page.locator('#gamex-out').textContent());
+            if(!(snapshot.units>0))throw Error('GameEngineX received no living units');
+            await page.locator('#gamex-step').click();
+            const step=JSON.parse(await page.locator('#gamex-out').textContent());
+            if(!step.action)throw Error('GameEngineX did not execute action');
+            await page.screenshot({path:'apk/out/swarm-world-browser.png'});
+            if(errors.length||missing.length)throw Error(JSON.stringify({errors,missing}));
+            console.log(JSON.stringify({units:snapshot.units,action:step.action,missing,errors}));
+          } finally{await browser?.close();await new Promise(r=>server.close(r));}
+          EOF
+          node apk-smoke.mjs
+      - name: Compile and sign installable preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk="${ANDROID_SDK_ROOT:-${ANDROID_HOME:?Android SDK missing}}"
+          platform="$sdk/platforms/android-35/android.jar"
+          if [ ! -f "$platform" ] || [ ! -d "$sdk/build-tools/35.0.0" ]; then
+            sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          fi
+          bt="$sdk/build-tools/35.0.0"
+          javac -source 8 -target 8 -classpath "$platform" -d apk/classes apk/MainActivity.java
+          "$bt/d8" --min-api 26 --lib "$platform" --output apk/dex $(find apk/classes -name '*.class')
+          "$bt/aapt" package -f -M apk/AndroidManifest.xml -A apk/assets -I "$platform" -F apk/unsigned.apk
+          (cd apk/dex && zip -q ../unsigned.apk classes.dex)
+          "$bt/zipalign" -f 4 apk/unsigned.apk apk/aligned.apk
+          keytool -genkeypair -keystore apk/debug.jks -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
+          "$bt/apksigner" sign --ks apk/debug.jks --ks-pass pass:android --key-pass pass:android --out apk/out/AutoMind-POP-preview.apk apk/aligned.apk
+          "$bt/apksigner" verify --verbose apk/out/AutoMind-POP-preview.apk
+          "$bt/aapt" dump badging apk/out/AutoMind-POP-preview.apk
+          cp apk/assets/swarm-missing.txt apk/out/
+          (cd apk/out && sha256sum AutoMind-POP-preview.apk > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AutoMind-POP-Android-preview
+          path: apk/out/
+          if-no-files-found: error
+, '', s)  # examples in comments are not imports
               refs = re.findall(r'''(?:\bfrom\s*|\bimport\s*|\bsrc\s*=\s*|\bfetch\(\s*)["'](\./[^"']+)["']''', s)
               for ref in refs:
                   target = path.parent/ref.split('?')[0].split('#')[0]
