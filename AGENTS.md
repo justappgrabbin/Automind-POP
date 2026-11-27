@@ -45,3 +45,6 @@ Maintain `docs/SOURCE_INVENTORY.md`, `docs/PROGRESS.md`, `docs/TEST_EVIDENCE.md`
 
 ## User interaction
 Only ask a question when it blocks work. Otherwise make the next verified engineering move. Do not ask the user to manually transfer archives, copy code, or choose a redundant architecture when authorized connected tools can do it. If the automation platform stops after one run, make continuation resumable and describe the actual mechanism needed for unattended execution.
+
+## Mandatory dependency closure and release gate (user clarification)
+Do not ship an application with unresolved or omitted runtime dependencies, disabled features used to conceal missing dependencies, or placeholder implementations substituted for original components. Restore the real source and assets, preserve prior capabilities, and verify the actual integrated application before giving it to the user. A compiled/signed APK alone is not acceptance. The Android packaging workflow must reject unresolved swarm imports and failed runtime smoke tests; confirm the install/launch on Android separately. Keep the whole AutoMind mission runtime in scope and do not describe a browser-only build as the completed computer.
