@@ -1,0 +1,3 @@
+[submodule "vendor/morphogenesis-resources"]
+	path = vendor/morphogenesis-resources
+	url = https://github.com/jasonwebb/morphogenesis-resources.git
